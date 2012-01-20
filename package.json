@@ -1,0 +1,14 @@
+{
+	"name": "VoltJS",
+	"description": "VoltDB binary driver",
+	"version": "0.1.0",
+	"author": "VoltDB",
+	"engines": {
+		"node": ">= 0.6.0"
+	},
+	"dependencies": {
+		"bignumber" : "latest",
+		"ctype":"latest",
+        "cli":"latest"
+	}
+}
