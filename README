@@ -1,0 +1,22 @@
+VoltDB NodeJS Wire Protocol Driver 0.1.1
+
+Installation
+============
+
+Run "npm -install" to install various node libraries before using the
+driver.
+
+Example Application
+===================
+1. Start the voter example voter example server included in the voltDB 
+distribution. It is found VOLTDB_HOME/examples/voter.
+
+2. Execute ./run.sh server
+
+3. Open voternoui.js in the voltdb-client-nodejs directory and make sure 
+that the first line of the main method references the host running the 
+voter example. The line reads:
+ var clusterNodes = ['localhost'];
+
+4. Run the sample
+node ./voternoui.js [-c number_of_votes]

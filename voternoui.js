@@ -49,7 +49,7 @@ var voteCandidates = 'Edwina Burnam,Tabatha Gehling,Kelly Clauss,Jessie Alloway,
 
 function main() {
 
-    var clusterNodes = ['volt3c'];//,'volt4c'];
+    var clusterNodes = ['localhost'];
     var configs = [];
     for ( var index = 0; index < clusterNodes.length; index++ ) {
         var vc = new VoltConfiguration();
