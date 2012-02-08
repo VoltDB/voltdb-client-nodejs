@@ -20,3 +20,8 @@ voter example. The line reads:
 
 4. Run the sample
 node ./voternoui.js [-c number_of_votes]
+
+Known Issues
+============
+
+Driver does not current support varbinary type.
