@@ -1,14 +1,15 @@
 VoltDB NodeJS Wire Protocol Driver 0.1.1
+========================================
 
 Requirements
-============
+------------
 
 Node.js 0.6.10
 VoltDB 2.1.3
 
 
 Installation
-============
+------------
 
 To use the sample ./voternoui.js, install the required node libraries:
 
@@ -17,7 +18,7 @@ To use the sample ./voternoui.js, install the required node libraries:
 
 
 Example Application
-===================
+-------------------
 
 The example uses the voter example server included in the VoltDB distribution. It is found in `VOLTDB_HOME/examples/voter`.
 
@@ -39,6 +40,6 @@ You may want to set the number of VoltDB *sites per host* to something interesti
 
 
 Known Issues
-============
+------------
 
 Driver does not currently support varbinary type. 
