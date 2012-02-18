@@ -40,7 +40,8 @@ var initProc = new VoltProcedure('Initialize', ['int', 'string']);
 var voteProc = new VoltProcedure('Vote', ['long', 'int', 'long']);
 
 var options = cli.parse({
-    voteCount : ['c', 'Number of votes to run', 'number', 1000]
+    voteCount : ['c', 'Number of votes to run', 'number', 10000],
+    clusterNode0 : ['h', 'VoltDB host (one of the cluster)', 'string', 'localhost']
 });
 
 var area_codes = [907, 205, 256, 334, 251, 870, 501, 479, 480, 602, 623, 928, 
@@ -71,7 +72,8 @@ var voteCandidates = 'Edwina Burnam,Tabatha Gehling,Kelly Clauss,' +
 
 function main() {
 
-    var clusterNodes = ['localhost'];
+    var clusterNodes = [options.clusterNode0];
+    console.log("Host: " + clusterNodes[0]);
     var configs = [];
     for ( var index = 0; index < clusterNodes.length; index++ ) {
         var vc = new VoltConfiguration();
