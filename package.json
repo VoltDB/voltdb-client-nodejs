@@ -1,14 +1,20 @@
 {
-	"name": "VoltJS",
-	"description": "VoltDB binary driver",
-	"version": "0.1.0",
-	"author": "VoltDB",
-	"engines": {
-		"node": ">= 0.6.0"
-	},
-	"dependencies": {
-		"bignumber" : "latest",
-		"ctype":"latest",
-        "cli":"latest"
-	}
+    "name": "VoltJS",
+    "description": "VoltDB binary driver",
+    "version": "0.1.0",
+    "author": "VoltDB",
+    "engines": {
+        "node": ">= 0.6.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/VoltDB/voltdb-client-nodejs.git"
+    },
+
+    "dependencies": {
+        "bignumber": "latest",
+        "ctype": "latest",
+        "cli": "latest",
+        "nodeunit": "latest"
+    }
 }

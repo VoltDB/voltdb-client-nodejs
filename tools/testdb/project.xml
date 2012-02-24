@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<project>
+    <info>
+        <name>Nodejs client test</name>
+        <version>1</version>
+        <description>Various test cases</description>
+    </info>
+    <database>
+        <schemas>
+            <schema path='ddl.sql' />
+        </schemas>
+        <procedures>
+            <procedure class='com.voltdb.test.typetest.proc.Insert'/>
+            <!-- procedure class='typetest.procedures.selectTestType' />
+            <procedure class='typetest.procedures.deleteTestType' / -->
+            <procedure class='com.voltdb.test.typetest.proc.InitTestType'/>
+        </procedures>
+       <partitions>
+            <partition table='typetest' column='test_id' />
+        </partitions>
+    </database>
+</project>
