@@ -21,6 +21,8 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+
+// TODO: Remove a lot of the console/util logging statements being used for debugging purposes.
 var VoltClient = require('../../lib/client');
 var VoltConfiguration = require('../../lib/configuration');
 var VoltProcedure = require('../../lib/query');
@@ -79,15 +81,32 @@ module.exports = {
     },
     
     'select test' : function(test) {
-        test.expect(2);
+        test.expect(11);
         
         var initProc = new VoltProcedure('TYPETEST.select', ['int']);
         var query = initProc.getQuery();
         query.setParameters([0]);
         
         client.call(query, function read( results ) {
-            console.log('results', results);
-            test.ok(results.status == 1 , 'did I get called');
+            
+            var testBuffer = new Buffer(4);
+            console.log('results inspection: ', results.table[0][0].TEST_TIMESTAMP);
+            console.log(util.inspect(results.table[0][0]));
+            
+            test.equals(results.status, 1, 'Invalid status: ' + results.status + 'should be 1');
+            
+            test.equals(results.table[0][0].TEST_ID, 0, 'Wrong row ID, should be 0');
+            test.equals(results.table[0][0].TEST_TINY, 1, 'Wrong tiny, should be 1');
+            test.equals(results.table[0][0].TEST_SMALL, 2, 'Wrong small, should be 2');
+            test.equals(results.table[0][0].TEST_INTEGER, 3, 'Wrong integer, should be 3');
+            test.equals(results.table[0][0].TEST_BIG, 4, 'Wrong integer, should be 4');
+            test.equals(results.table[0][0].TEST_FLOAT, 5.1, 'Wrong float, should be 5.1');
+            test.equals(results.table[0][0].TEST_DECIMAL, 6.000342, 'Wrong decimal, should be 6.000342');
+            test.equals(results.table[0][0].TEST_VARCHAR, 'seven', 'Wrong varchar, should be seven');
+            // TODO: Add varbinary buffer comparison code.
+            //test.equals(results.table[0][0].TEST_VARBINARY, 6.00034231, results.table[0][0].TEST_VARBINARY);
+            test.equals(results.table[0][0].TEST_TIMESTAMP.getTime(), (new Date(1331310436605)).getTime(), (new Date(1331310436605)).toString() +": " + results.table[0][0].TEST_TIMESTAMP);
+
             test.done();
         }, function write (results) {
              console.log('write ok');

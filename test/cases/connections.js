@@ -58,7 +58,7 @@ module.exports = {
         var client = new VoltClient(badConfig())
         client.connect(function startup(results) {
             test.expect(1);
-            test.equals(results.error, true, 
+            test.equals(results[0].error, true, 
                 'There should not be a host named idontexists');
             test.done();
         });
@@ -68,7 +68,7 @@ module.exports = {
         var client = new VoltClient(goodConfig())
         client.connect(function startup(results) {
             test.expect(1);
-            test.equals(results.error, false, 
+            test.equals(results[0].error, false, 
                 'Should have been able to connect, is Volt running on localhost?');
             test.done();
         });

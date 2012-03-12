@@ -41,7 +41,7 @@ var voteProc = new VoltProcedure('Vote', ['long', 'int', 'long']);
 
 var options = cli.parse({
     voteCount : ['c', 'Number of votes to run', 'number', 10000],
-    clusterNode0 : ['h', 'VoltDB host (one of the cluster)', 'string', 'localhost']
+    clusterNode0 : ['h', 'VoltDB host (one of the cluster)', 'string', 'volt3g, volt3h']
 });
 
 var area_codes = [907, 205, 256, 334, 251, 870, 501, 479, 480, 602, 623, 928, 
@@ -72,10 +72,10 @@ var voteCandidates = 'Edwina Burnam,Tabatha Gehling,Kelly Clauss,' +
 
 function main() {
 
-    var clusterNodes = [options.clusterNode0];
-    console.log("Host: " + clusterNodes[0]);
+    var clusterNodes = ['volt3g', 'volt3h'];//[options.clusterNode0];
     var configs = [];
     for ( var index = 0; index < clusterNodes.length; index++ ) {
+        console.log("Host: " + clusterNodes[index]);
         var vc = new VoltConfiguration();
         vc.host = clusterNodes[index];
         configs.push(vc);
@@ -84,16 +84,10 @@ function main() {
     
     client = new VoltClient(configs);    
     client.connect(function startup(results) {
-        counter++;
-        if ( counter == clusterNodes.length) {
-            console.log('Node up');
-            voltInit();
-        }
+        console.log('Node up');
+        voltInit();
     }, function loginError(results) {
-        counter++;
-        if ( counter == clusterNodes.length) {
-            voltInit();
-        }
+        console.log("Error logging in: " + results);
     });
 }
 
@@ -102,14 +96,16 @@ function voltInit() {
     var query = initProc.getQuery();
     query.setParameters([6, voteCandidates]);
     client.call(query, function initVoter(results) {
-        var val = results.table[0][0];
-        console.log( 'Initialized app for ' + val[''] + ' candidates.\n\n');
-        
-        var voteJob = {};
-        voteJob.voteCount = options.voteCount;
-        voteJob.steps = getSteps();
-  
-        runNextLink(voteJob);
+        if ( results.error == false ) {
+            var val = results.table[0][0];
+            console.log( 'Initialized app for ' + val[''] + ' candidates.\n\n');
+            
+            var voteJob = {};
+            voteJob.voteCount = options.voteCount;
+            voteJob.steps = getSteps();
+      
+            runNextLink(voteJob);
+        }
     });
 }
 
@@ -211,7 +207,9 @@ function voteResultsLoop(voteJob) {
                         chunkTime = new Date().getTime();
                     }
                     index++;
-                    process.nextTick(innerResultsLoop);
+                    if ( index % 20 == 0) {
+                        process.nextTick(innerResultsLoop);
+                    }
                 } else {
                     console.log('Time to stop querying: ', index);
                 }
@@ -238,7 +236,6 @@ function voteInsertLoop(voteJob) {
     var innerLoop = function() {
         var query = voteProc.getQuery();
         if(index < voteJob.voteCount) {
-            
             query.setParameters([getAreaCode(), getCandidate(), 200000]);
             client.call(query, function displayResults(results) {
                 //console.log("reads ", reads);
@@ -250,25 +247,18 @@ function voteInsertLoop(voteJob) {
                    //console.log("reads ", reads);
                 }
             }, function readyToWrite() {
-                
-                if(index < voteJob.voteCount) {
+                if( index < voteJob.voteCount ) {
                     if ( index % 5000 == 0 ) {
                         console.log('Executed ', index, ' votes in ', 
-                        (new Date().getTime()) - chunkTime, 'ms ', 
-                        util.inspect(process.memoryUsage()));
+                        (new Date().getTime()) - chunkTime, 'ms '/*, 
+                        util.inspect(process.memoryUsage())*/);
                         chunkTime = new Date().getTime();
                     }
-
                     index++;
-                    process.nextTick(innerLoop);
-                } else {
-                    console.log(readyToWriteCounter++, 'Time to stop voting: ',
-                         index);
                 }
             });
-        } else {
-            console.log('Index is: ', index, ' and ', voteJob.voteCount);
-        }
+        } 
+        process.nextTick(innerLoop);
     };
     process.nextTick(innerLoop);
 

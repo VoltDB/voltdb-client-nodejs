@@ -1,0 +1,39 @@
+img(src = '/images/logo.png')
+
+h1= title
+p Welcome to the #{title}
+
+h2 Description
+p This application demonstrates a VoltDB generating data asynchronously,
+    |  reading it and rendering to a live table.
+    
+
+table#VOTES
+    thead
+        tr: th Candidate
+            th Votes
+    tbody
+        tr: td
+            td
+ 
+script
+    $(function() {
+        setInterval(getVotes, 400);
+    });
+    
+    function getVotes() {
+        $.getJSON('results', function(data) {
+            $.each($('#VOTES tbody tr'), function (index, row) {
+                $(row).remove();
+            });
+            
+            tbody = $('#VOTES');
+            
+            rows = data.rows;
+            $.each(rows, function( index, row) {
+                tbody.append('<tr><td>' + row.CONTESTANT_NAME + '</td><td>' + row.TOTAL_VOTES + '</td></tr>');
+            });
+        });
+    }
+    
+    
