@@ -97,14 +97,16 @@ function voteInsertLoop() {
     
     var query = voteProc.getQuery();
     var innerLoop = function() {
-       
+        for( var i = 0; i < 3000; i++ ) {
         query.setParameters([getAreaCode(), getCandidate(), 200000]);
-        client.call(query, function displayResults(results) {
-            
-            transactionCounter++;
-        }, function readyToWrite() {
-            process.nextTick(innerLoop);
-        });
+            client.call(query, function displayResults(results) {
+                
+                transactionCounter++;
+            }, function readyToWrite() {
+                
+            });
+        }
+        process.nextTick(innerLoop);
     }
 
     process.nextTick(innerLoop);
