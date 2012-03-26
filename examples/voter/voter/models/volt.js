@@ -66,6 +66,7 @@ function voltInit() {
 function getConfiguration(host) {
     var cfg = new VoltConfiguration();
     cfg.host = host;
+    cfg.messageQueueSize = 20;
     return cfg;
 }
 
@@ -74,8 +75,7 @@ exports.initClient = function(startLoop) {
     if(client == null) {
         var configs = []
         
-        configs.push(getConfiguration('volt3f'));
-        configs.push(getConfiguration('volt3l'));
+        configs.push(getConfiguration('localhost'));
         
         client = new VoltClient(configs);
         client.connect(function startup(results) {
@@ -99,13 +99,13 @@ function voteInsertLoop() {
     var query = voteProc.getQuery();
     var innerLoop = function() {
         for( var i = 0; i < 3000; i++ ) {
-        query.setParameters([getAreaCode(), getCandidate(), 200000]);
-            client.call(query, function displayResults(results) {
-                
-                transactionCounter++;
-            }, function readyToWrite() {
-                
-            });
+            query.setParameters([getAreaCode(), getCandidate(), 200000]);
+                client.call(query, function displayResults(results) {
+                    
+                    transactionCounter++;
+                }, function readyToWrite() {
+                    
+                });
         }
         process.nextTick(innerLoop);
     }
