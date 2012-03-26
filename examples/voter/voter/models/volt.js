@@ -74,7 +74,8 @@ exports.initClient = function(startLoop) {
     if(client == null) {
         var configs = []
         
-        configs.push(getConfiguration('localhost'));
+        configs.push(getConfiguration('volt3f'));
+        configs.push(getConfiguration('volt3l'));
         
         client = new VoltClient(configs);
         client.connect(function startup(results) {
