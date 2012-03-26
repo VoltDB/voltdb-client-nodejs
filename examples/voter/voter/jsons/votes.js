@@ -24,9 +24,9 @@
 var volt = require("../models/volt");
 
 exports.votes = function(req, res) {
-    return volt.getVoteResults( function displayResults(results) {;
-        res.json({
-            'rows' : results.table[0]
-        });
+  return volt.getVoteResults(function displayResults(results) {;
+    res.json({
+      'rows' : results.table[0]
     });
+  });
 }

@@ -26,34 +26,33 @@ var fs = require('fs');
 var child_process = require('child_process');
 
 var TestRunner = function() {
-    this.testDirectories = ["./cases"];
-    this.fileList = [];
+  this.testDirectories = ["./cases"];
+  this.fileList = [];
 }
 tr = TestRunner.prototype;
 
 tr.loadTests = function() {
-    console.log(this.testDirectories.length);
-    for(var index = 0; index < this.testDirectories.length; index++) {
-        var cases = fs.readdirSync(this.testDirectories[index]) || [];
-        
-        for( var inner = 0; inner < cases.length; inner++ ) {
-            this.fileList = this.fileList.concat(this.testDirectories[index] 
-                + '/' + cases[inner]);
-        }
+  console.log(this.testDirectories.length);
+  for(var index = 0; index < this.testDirectories.length; index++) {
+    var cases = fs.readdirSync(this.testDirectories[index]) || [];
+
+    for(var inner = 0; inner < cases.length; inner++) {
+      this.fileList = this.fileList.concat(this.testDirectories[index] + '/' + cases[inner]);
     }
+  }
 }
 
 tr.run = function() {
-    var reporter = nodeunit.reporters.default;
-    console.log('here', reporter);
-    reporter.run(this.fileList, null, function something() {
-        process.exit(1);
-    });
+  var reporter = nodeunit.reporters.default;
+  console.log('here', reporter);
+  reporter.run(this.fileList, null, function something() {
+    process.exit(1);
+  });
 }
 function main() {
-    var runner = new TestRunner();
-    runner.loadTests();
-    runner.run();
+  var runner = new TestRunner();
+  runner.loadTests();
+  runner.run();
 };
 
 main();

@@ -44,89 +44,84 @@ var area_codes = [907, 205, 256, 334, 251, 870, 501, 479, 480, 602, 623, 928, 52
 var voteCandidates = 'Edwina Burnam,Tabatha Gehling,Kelly Clauss,' + 'Jessie Alloway,Alana Bregman,Jessie Eichman,Allie Rogalski,Nita Coster,' + 'Kurt Walser,Ericka Dieter,Loraine NygrenTania Mattioli';
 
 function getCandidate() {
-    return Math.floor(Math.random() * 6) + 1;
+  return Math.floor(Math.random() * 6) + 1;
 }
 
 function getAreaCode() {
-    return area_codes[Math.floor(Math.random() * area_codes.length)] * 10000000 + Math.random() * 10000000;
+  return area_codes[Math.floor(Math.random() * area_codes.length)] * 10000000 + Math.random() * 10000000;
 }
 
 // setup the voter db
 function voltInit() {
-    util.log('voltInit');
-    var query = initProc.getQuery();
-    query.setParameters([6, voteCandidates]);
-    client.call(query, function initVoter(results) {
-        var val = results.table[0][0];
-        util.log('Initialized app for ' + val[''] + ' candidates.');
-        
-    });
+  util.log('voltInit');
+  var query = initProc.getQuery();
+  query.setParameters([6, voteCandidates]);
+  client.call(query, function initVoter(results) {
+    var val = results.table[0][0];
+    util.log('Initialized app for ' + val[''] + ' candidates.');
+
+  });
 }
 
 function getConfiguration(host) {
-    var cfg = new VoltConfiguration();
-    cfg.host = host;
-    cfg.messageQueueSize = 20;
-    return cfg;
+  var cfg = new VoltConfiguration();
+  cfg.host = host;
+  cfg.messageQueueSize = 20;
+  return cfg;
 }
 
 // Connect to the server
 exports.initClient = function(startLoop) {
-    if(client == null) {
-        var configs = []
-        
-        configs.push(getConfiguration('localhost'));
-        
-        client = new VoltClient(configs);
-        client.connect(function startup(results) {
-            util.log('Node up');
-            if( startLoop == true ) {
-                setInterval(logResults, statsLoggingInterval);
-                voteInsertLoop();
-            } else {
-                voltInit();
-            }
-            
-        }, function loginError(results) {
-            util.log('Node not up');
-        });
-    }
-}
+  if(client == null) {
+    var configs = []
 
+    configs.push(getConfiguration('localhost'));
+    client = new VoltClient(configs);
+    client.connect(function startup(results) {
+      util.log('Node up');
+      if(startLoop == true) {
+        setInterval(logResults, statsLoggingInterval);
+        voteInsertLoop();
+      } else {
+        voltInit();
+      }
+
+    }, function loginError(results) {
+      util.log('Node not up');
+    });
+  }
+}
 // Separate fork will run this code and try to vote as often as possible.
 function voteInsertLoop() {
-    
-    var query = voteProc.getQuery();
-    var innerLoop = function() {
-        for( var i = 0; i < 3000; i++ ) {
-            query.setParameters([getAreaCode(), getCandidate(), 200000]);
-                client.call(query, function displayResults(results) {
-                    
-                    transactionCounter++;
-                }, function readyToWrite() {
-                    
-                });
-        }
-        process.nextTick(innerLoop);
-    }
 
+  var query = voteProc.getQuery();
+  var innerLoop = function() {
+    for(var i = 0; i < 3000; i++) {
+      query.setParameters([getAreaCode(), getCandidate(), 200000]);
+      client.call(query, function displayResults(results) {
+        transactionCounter++;
+      }, function readyToWrite() {
+
+      });
+    }
     process.nextTick(innerLoop);
-    
+  }
+
+  process.nextTick(innerLoop);
+
 }
 
 function logResults() {
-    logTime("Voted", statsLoggingInterval, transactionCounter);
-    transactionCounter = 0;
+  logTime("Voted", statsLoggingInterval, transactionCounter);
+  transactionCounter = 0;
 }
 
 function logTime(operation, totalTime, count) {
-    util.log(util.format('%d: %s %d times in %d milliseconds. %d TPS', process.pid, operation, count, totalTime, Math.floor((count / totalTime)*1000)));
+  util.log(util.format('%d: %s %d times in %d milliseconds. %d TPS', process.pid, operation, count, totalTime, Math.floor((count / totalTime) * 1000)));
 }
 
 // Call the stored proc to colelct all votes.
 exports.getVoteResults = function(callback) {
-    var query = resultsProc.getQuery();
-    client.call(query, callback);
+  var query = resultsProc.getQuery();
+  client.call(query, callback);
 }
-
-

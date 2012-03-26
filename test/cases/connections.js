@@ -26,51 +26,45 @@ var VoltConfiguration = require('../../lib/configuration');
 var util = require('util');
 var testCase = require('nodeunit');
 
-
 function goodConfig() {
-    return config('localhost');
+  return config('localhost');
 }
 
 function badConfig() {
-    return config('idontexist');
+  return config('idontexist');
 }
 
 function config(host) {
-    var config = new VoltConfiguration();
-    config.host = host;
-    var configs = [];
-    configs.push(config);
-    return configs;
+  var config = new VoltConfiguration();
+  config.host = host;
+  var configs = [];
+  configs.push(config);
+  return configs;
 }
 
 module.exports = {
 
-    setUp:function(callback) {
-        callback();
-    },
-    
-    tearDown:function(callback) {
-        console.log('teardown called');
-        callback();
-    },
-
-    'Bad connection results' : function(test) {
-        var client = new VoltClient(badConfig())
-        client.connect(function startup(results) {
-            test.expect(1);
-            test.equals(results[0].error, true, 
-                'There should not be a host named idontexists');
-            test.done();
-        });
-    },
-    
-    'Good connection results' : function(test) {
-        var client = new VoltClient(goodConfig())
-        client.connect(function startup(results) {
-            test.expect(1);
-            test.equals(results[0].error, false, 
-                'Should have been able to connect, is Volt running on localhost?');
-            test.done();
-        });
-    }
+  setUp : function(callback) {
+    callback();
+  },
+  tearDown : function(callback) {
+    console.log('teardown called');
+    callback();
+  },
+  'Bad connection results' : function(test) {
+    var client = new VoltClient(badConfig())
+    client.connect(function startup(results) {
+      test.expect(1);
+      test.equals(results[0].error, true, 'There should not be a host named idontexists');
+      test.done();
+    });
+  },
+  'Good connection results' : function(test) {
+    var client = new VoltClient(goodConfig())
+    client.connect(function startup(results) {
+      test.expect(1);
+      test.equals(results[0].error, false, 'Should have been able to connect, is Volt running on localhost?');
+      test.done();
+    });
+  }
 };

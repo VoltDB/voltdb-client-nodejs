@@ -21,12 +21,8 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 exports.index = function(req, res) {
-    
-    res.render('index', {
-        title : 'VoltDB Voter Example'
-    })
+
+  res.render('index', {
+    title : 'VoltDB Voter Example'
+  })
 };
-
-
-
-
