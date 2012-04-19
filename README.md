@@ -42,4 +42,3 @@ You may want to set the number of VoltDB *sites per host* to something interesti
 Known Issues
 ------------
 
-Driver does not currently support varbinary type. 
