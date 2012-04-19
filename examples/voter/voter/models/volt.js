@@ -25,6 +25,7 @@ var util = require('util');
 var cluster = require('cluster');
 
 var VoltClient = require(__dirname + '/../../../../lib/client');
+var VoltConstants = require(__dirname + '/../../../../lib/voltconstants');
 var VoltConfiguration = require(__dirname + '/../../../../lib/configuration');
 var VoltProcedure = require(__dirname + '/../../../../lib/query');
 var VoltQuery = require(__dirname + '/../../../../lib/query');
@@ -56,11 +57,14 @@ function voltInit() {
   util.log('voltInit');
   var query = initProc.getQuery();
   query.setParameters([6, voteCandidates]);
-  client.call(query, function initVoter(results) {
+  client.callProcedure(query, function initVoter(event, code, results) {
     var val = results.table[0][0];
     util.log('Initialized app for ' + val[''] + ' candidates.');
-
   });
+}
+
+function eventListener(event, code, message) {
+  util.log(util.format( 'Event %s\tcode: %d\tMessage: %s', event, code, message));
 }
 
 function getConfiguration(host) {
@@ -77,8 +81,15 @@ exports.initClient = function(startLoop) {
 
     configs.push(getConfiguration('localhost'));
     client = new VoltClient(configs);
+    client.on(VoltConstants.SESSION_EVENT.CONNECTION,eventListener);
+    client.on(VoltConstants.SESSION_EVENT.CONNECTION_ERROR,eventListener);
+    client.on(VoltConstants.SESSION_EVENT.QUERY_RESPONSE_ERROR,eventListener);
+    client.on(VoltConstants.SESSION_EVENT.QUERY_DISPATCH_ERROR,eventListener);
+    client.on(VoltConstants.SESSION_EVENT.FATAL_ERROR,eventListener);
+   
     client.connect(function startup(results) {
-      util.log('Node up');
+      util.log('Node connected to VoltDB');
+      
       if(startLoop == true) {
         setInterval(logResults, statsLoggingInterval);
         voteInsertLoop();
@@ -87,7 +98,7 @@ exports.initClient = function(startLoop) {
       }
 
     }, function loginError(results) {
-      util.log('Node not up');
+      util.log('Node did not connect to VoltDB');
     });
   }
 }
@@ -96,9 +107,9 @@ function voteInsertLoop() {
 
   var query = voteProc.getQuery();
   var innerLoop = function() {
-    for(var i = 0; i < 3000; i++) {
-      query.setParameters([getAreaCode(), getCandidate(), 200000]);
-      client.call(query, function displayResults(results) {
+    for(var i = 0; i < 30; i++) {
+      query.setParameters([getAreaCode(), getCandidate(), 2000]);
+      client.callProcedure(query, function displayResults(results) {
         transactionCounter++;
       }, function readyToWrite() {
 
@@ -120,8 +131,8 @@ function logTime(operation, totalTime, count) {
   util.log(util.format('%d: %s %d times in %d milliseconds. %d TPS', process.pid, operation, count, totalTime, Math.floor((count / totalTime) * 1000)));
 }
 
-// Call the stored proc to colelct all votes.
+// Call the stored proc to collect all votes.
 exports.getVoteResults = function(callback) {
-  var query = resultsProc.getQuery();
-  client.call(query, callback);
+    var query = resultsProc.getQuery();
+    client.callProcedure(query, callback);
 }

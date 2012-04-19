@@ -41,7 +41,7 @@ var voteProc = new VoltProcedure('Vote', ['long', 'int', 'long']);
 
 var options = cli.parse({
     voteCount : ['c', 'Number of votes to run', 'number', 10000],
-    clusterNode0 : ['h', 'VoltDB host (one of the cluster)', 'string', 'volt3g, volt3h']
+    clusterNode0 : ['h', 'VoltDB host (one of the cluster)', 'string', 'localhost']
 });
 
 var area_codes = [907, 205, 256, 334, 251, 870, 501, 479, 480, 602, 623, 928, 
@@ -72,7 +72,7 @@ var voteCandidates = 'Edwina Burnam,Tabatha Gehling,Kelly Clauss,' +
 
 function main() {
 
-    var clusterNodes = ['volt3g', 'volt3h'];//[options.clusterNode0];
+    var clusterNodes = [options.clusterNode0];
     var configs = [];
     for ( var index = 0; index < clusterNodes.length; index++ ) {
         console.log("Host: " + clusterNodes[index]);
@@ -95,7 +95,7 @@ function voltInit() {
     console.log('voltInit');
     var query = initProc.getQuery();
     query.setParameters([6, voteCandidates]);
-    client.call(query, function initVoter(results) {
+    client.callProcedure(query, function initVoter(event, code, results) {
         if ( results.error == false ) {
             var val = results.table[0][0];
             console.log( 'Initialized app for ' + val[''] + ' candidates.\n\n');
@@ -122,7 +122,7 @@ function voteResultsOften(voteJob) {
 function voteResults(voteJob) {
     console.log('voteResults');
     var query = resultsProc.getQuery();
-    client.call(query, function displayResults(results) {
+    client.callProcedure(query, function displayResults(event, code, results) {
         var mytotalVotes = 0;
 
         var msg = '';
@@ -182,7 +182,7 @@ function voteResultsLoop(voteJob) {
     var innerResultsLoop = function() {
         var query = resultsProc.getQuery();
         if(index < voteJob.voteCount) {
-            client.call(query, function displayVoteResults(results) {
+            client.callProcedure(query, function displayVoteResults(event, code, results) {
                 reads--;
                 // results object is not always real
                 if ( results.status != 1) {
@@ -237,7 +237,7 @@ function voteInsertLoop(voteJob) {
         var query = voteProc.getQuery();
         if(index < voteJob.voteCount) {
             query.setParameters([getAreaCode(), getCandidate(), 200000]);
-            client.call(query, function displayResults(results) {
+            client.callProcedure(query, function displayResults(event, code, results) {
                 //console.log("reads ", reads);
                 reads--;
                 if(reads == 0) {

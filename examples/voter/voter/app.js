@@ -41,7 +41,7 @@ function webserverProcess() {
     app.use(express.static(__dirname + '/public'));
   });
 
-  app.configure('development', function() {
+  app.configure('production', function() {
     app.use(express.errorHandler({
       dumpExceptions : true,
       showStack : true
@@ -57,12 +57,13 @@ function webserverProcess() {
 
   app.listen(3000);
 
-  util.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+  util.log(util.format("Express server listening on port %d in %s mode", 
+    app.address().port, app.settings.env));
 }
 
 function startup() {
   if(cluster.isMaster) {
-    numCPUs /= 2;
+    numCPUs /=2;
     // TODO: Add command line to override whatever numCPUs is set to so we don't
     // use all the cores.
     util.log("Using CPUs: " + numCPUs);
