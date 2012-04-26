@@ -57,13 +57,13 @@ function voltInit() {
   util.log('voltInit');
   var query = initProc.getQuery();
   query.setParameters([6, voteCandidates]);
-  client.callProcedure(query, function initVoter(event, code, results) {
+  client.callProcedure(query, function initVoter(code, event, results) {
     var val = results.table[0][0];
     util.log('Initialized app for ' + val[''] + ' candidates.');
   });
 }
 
-function eventListener(event, code, message) {
+function eventListener(code, event, message) {
   util.log(util.format( 'Event %s\tcode: %d\tMessage: %s', event, code, message));
 }
 
@@ -87,7 +87,7 @@ exports.initClient = function(startLoop) {
     client.on(VoltConstants.SESSION_EVENT.QUERY_DISPATCH_ERROR,eventListener);
     client.on(VoltConstants.SESSION_EVENT.FATAL_ERROR,eventListener);
    
-    client.connect(function startup(results) {
+    client.connect(function startup(code, event,results) {
       util.log('Node connected to VoltDB');
       
       if(startLoop == true) {

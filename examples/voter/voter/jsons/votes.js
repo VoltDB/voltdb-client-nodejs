@@ -25,7 +25,7 @@ var volt = require("../models/volt"),
 VoltConstants = require(__dirname + '/../../../../lib/voltconstants');
 
 exports.votes = function(req, res) {
-  return volt.getVoteResults(function displayResults(event, code, results) {
+  return volt.getVoteResults(function displayResults(code, event, results) {
     if(code == VoltConstants.STATUS_CODES.SUCCESS) {
       res.json({
         'rows' : results.table[0]

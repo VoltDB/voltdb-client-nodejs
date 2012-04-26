@@ -23,6 +23,7 @@
 
 // TODO: Remove a lot of the console/util logging statements being used for
 // debugging purposes.
+
 var VoltClient = require('../../lib/client');
 var VoltConfiguration = require('../../lib/configuration');
 var VoltProcedure = require('../../lib/query');
@@ -42,13 +43,14 @@ function config() {
   return configs;
 }
 
-module.exports = {
+exports.typetest = {
 
   setUp : function(callback) {
     if(client == null) {
+      console.log('typetest setup called');
       client = new VoltClient(config());
-      client.connect(function startup(results) {
-        console.log('connected');
+      client.connect(function startup(code, event, results) {
+        console.log('dasda connected');
         callback();
       });
     } else {
@@ -56,7 +58,7 @@ module.exports = {
     }
   },
   tearDown : function(callback) {
-    console.log('teardown called');
+    console.log('typetest teardown called');
     callback();
   },
   'Init test' : function(test) {
@@ -67,29 +69,30 @@ module.exports = {
     var query = initProc.getQuery();
     query.setParameters([0]);
 
-    client.call(query, function read(results) {
+    client.callProcedure(query, function read(code, event, results) {
       console.log('results', results);
-      test.ok(results.status == 1, 'did I get called');
+      test.equals(code, null , 'did I get called');
       test.done();
-    }, function write(results) {
+    }, function write(code, event, results) {
+      test.equals(code, null, 'Write didn\'t had an error');
       console.log('write ok');
-      test.ok(true, 'Write didn\'t get called');
     });
   },
   'select test' : function(test) {
+    console.log('select test');
     test.expect(11);
 
     var initProc = new VoltProcedure('TYPETEST.select', ['int']);
     var query = initProc.getQuery();
     query.setParameters([0]);
 
-    client.call(query, function read(results) {
+    client.callProcedure(query, function read(code, event, results) {
 
       var testBuffer = new Buffer(4);
       console.log('results inspection: ', results.table[0][0].TEST_TIMESTAMP);
-      console.log(util.inspect(results.table[0][0]));
+      console.log('inspect', util.inspect(results.table[0][0]));
 
-      test.equals(results.status, 1, 'Invalid status: ' + results.status + 'should be 1');
+      test.equals(code, null, 'Invalid status: ' + results.status + 'should be 1');
 
       test.equals(results.table[0][0].TEST_ID, 0, 'Wrong row ID, should be 0');
       test.equals(results.table[0][0].TEST_TINY, 1, 'Wrong tiny, should be 1');
@@ -105,7 +108,7 @@ module.exports = {
       test.equals(results.table[0][0].TEST_TIMESTAMP.getTime(), (new Date(1331310436605)).getTime(), (new Date(1331310436605)).toString() + ": " + results.table[0][0].TEST_TIMESTAMP);
 
       test.done();
-    }, function write(results) {
+    }, function write(code, event, results) {
       console.log('write ok');
       test.ok(true, 'Write didn\'t get called');
     });

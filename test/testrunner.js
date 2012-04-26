@@ -44,7 +44,6 @@ tr.loadTests = function() {
 
 tr.run = function() {
   var reporter = nodeunit.reporters.default;
-  console.log('here', reporter);
   reporter.run(this.fileList, null, function something() {
     process.exit(1);
   });
