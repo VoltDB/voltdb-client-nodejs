@@ -21,11 +21,22 @@
 * OTHER DEALINGS IN THE SOFTWARE.
 */
 
-/**
- * Module dependencies.
+/*
+ * This version of the sample requires that you have the VoltDB server installed
+ * and running the voter example database.
+ * 
+ * This sample will spawn a number( equal to the number of cores divided by 2) 
+ * of cluster nodes that will add votes to a collection of candidates.
+ * The main cluster node will act as the web server.
+ * 
+ * Please see the ./modules/volt.js file for a detailed explanation of the
+ * client code.
  */
 
-var express = require('express'), routes = require('./routes'), volt = require('./models/volt'), votes = require('./jsons/votes'), util = require('util'), cluster = require('cluster'), numCPUs = require('os').cpus().length;
+var express = require('express'), 
+routes = require('./routes'), volt = require('./models/volt'), 
+votes = require('./jsons/votes'), util = require('util'), 
+cluster = require('cluster'), numCPUs = require('os').cpus().length;
 
 function webserverProcess() {
   var app = module.exports = express.createServer();
