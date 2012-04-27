@@ -26,20 +26,20 @@ Example Application
 
 The example uses the voter example server included in the VoltDB distribution. It is found in `VOLTDB_HOME/examples/voter`.
 
-1. Start the server 
+1\. Start the server 
 
 ```
 ./run.sh server
 ```
 
-2. In a second terminal, run the sample   
+2\. In a second terminal, run the sample   
 
 ```   
 cd ./examples/voter/voter
 node ./app.js
 ```
 
-3. Open a browser and connect to localhost:3000 and watch the voting results.
+3\. Open a browser and connect to localhost:3000 and watch the voting results.
 
 The example include detailed comments about how the application runs in the app.js and volt.js files.
 
