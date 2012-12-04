@@ -98,8 +98,9 @@ function getCandidate() {
 }
 
 function getAreaCode() {
-  return area_codes[Math.floor(Math.random() * area_codes.length)] * 10000000 +
-    Math.random() * 10000000;
+  var tmpNumber = Math.floor((area_codes[Math.floor(Math.random() * 1000) % area_codes.length] * 10000000) +
+    (Math.random() * 10000000));
+  return tmpNumber;
 }
 
 // This will initialize the Voter database by invoking a stored procedure.
@@ -205,7 +206,7 @@ function voteInsertLoop() {
     // this application against a two node VoltDB cluster.
     for(var i = 0; i < 30; i++) {
       // Note that you can reuse the query object
-      query.setParameters([getAreaCode(), getCandidate(), 2000]);
+      query.setParameters([ getAreaCode(), getCandidate(), 20000]);
       
       // There are two callbacks. The first indicates that the query returned.
       // The second indicates that it is safe to query the server again. The 

@@ -4,8 +4,8 @@ VoltDB NodeJS Wire Protocol Driver 1.0
 Requirements
 ============
 
-Node.js 0.6.15  
-VoltDB 2.6
+Node.js 0.8  
+VoltDB 2.8
 
 
 Installation
