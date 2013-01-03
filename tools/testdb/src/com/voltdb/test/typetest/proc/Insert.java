@@ -1,5 +1,5 @@
 /* This file is part of VoltDB.
- * Copyright (C) 2008-2012 VoltDB Inc.
+ * Copyright (C) 2008-2013 VoltDB Inc.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -31,11 +31,11 @@ import org.voltdb.types.TimestampType;
 		partitionInfo = "typetest.test_id:0",
 		singlePartition = true)
 public class Insert extends VoltProcedure {
-	
+
 	public static final long SUCCESS = 0;
-	
+
 	public final SQLStmt insertStmt = new SQLStmt(
-			"insert into typetest " 
+			"insert into typetest "
 			/*+ " ( test_id"
 			+ ",test_tiny"
 			+ ",test_small"
@@ -47,14 +47,14 @@ public class Insert extends VoltProcedure {
 			+ ",test_varbinary"
 			+ ",test_timestamp )" */
 			+ " values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );");
-			
+
 	public long run( int id, byte tiny, short small,
-			int integer, long big, double dbl, BigDecimal decimal, 
+			int integer, long big, double dbl, BigDecimal decimal,
 			String str, byte[] ba, long timestamp ) throws VoltAbortException {
-		
-		voltQueueSQL( insertStmt, id, tiny, small, integer, big, dbl, decimal, 
+
+		voltQueueSQL( insertStmt, id, tiny, small, integer, big, dbl, decimal,
 				str, ba, timestamp );
-		
+
 		voltExecuteSQL();
 		return Insert.SUCCESS;
 	}
