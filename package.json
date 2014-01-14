@@ -1,7 +1,7 @@
 {
     "name": "voltjs-alt",
     "description": "VoltDB binary driver - a workaround version",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "author": "VoltDB",
     "engines": {
         "node": ">= 0.6.0"
@@ -10,7 +10,6 @@
         "type": "git",
         "url": "https://github.com/ypocat/voltdb-client-nodejs.git"
     },
-
     "dependencies": {
         "bignumber": "latest",
         "ctype": "latest",
