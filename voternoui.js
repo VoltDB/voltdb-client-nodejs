@@ -258,7 +258,7 @@ function voteInsertLoop(voteJob) {
                 }
             });
         } 
-        process.nextTick(innerLoop);
+        setImmediate(innerLoop);
     };
     process.nextTick(innerLoop);
 
