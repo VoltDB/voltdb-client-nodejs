@@ -10,7 +10,7 @@ VoltDB 2.8 or later
 
 Installation
 ============
-Run NPM to install all the dependencies for the driver itself. The example application does not automatically install its dependencies, so do `npm install` in the example/voter/voter folder as well.
+Run NPM to install all the dependencies for the driver itself. The example application does not automatically install its dependencies, so do `npm install` in both the directory where the node.js driver is installed and the example/voter/voter folder as well.
 
     npm install 
 
