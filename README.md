@@ -1,10 +1,10 @@
-VoltDB NodeJS Wire Protocol Driver 1.0
+VoltDB NodeJS Wire Protocol Driver 1.1
 ========================================
 
 Requirements
 ============
 
-Node.js 0.9.1 or later  
+Node.js 0.9.1 or later
 VoltDB 2.8 or later
 
 
@@ -12,13 +12,13 @@ Installation
 ============
 Run NPM to install all the dependencies for the driver itself. The example application does not automatically install its dependencies, so do `npm install` in both the directory where the node.js driver is installed and the example/voter/voter folder as well.
 
-    npm install 
+    npm install
 
 Introduction
 ============
 The VoltDB is a high throughput, ACID compliant database that works best when using an asynchronous client. This wire driver runs in asynchronous mode only.
 
-Please see the documentation for administering and using VoltDB on the [VoltDB community page][1] 
+Please see the documentation for administering and using VoltDB on the [VoltDB community page][1]
 
 
 Example Application
@@ -26,15 +26,15 @@ Example Application
 
 The example uses the voter example server included in the VoltDB distribution. It is found in `VOLTDB_HOME/examples/voter`.
 
-1\. Start the server 
+1\. Start the server
 
 ```
 ./run.sh server
 ```
 
-2\. In a second terminal, run the sample   
+2\. In a second terminal, run the sample
 
-```   
+```
 cd ./examples/voter/voter
 node ./app.js
 ```
@@ -43,7 +43,7 @@ node ./app.js
 
 The example include detailed comments about how the application runs in the app.js and volt.js files.
 
-You may want to set the number of VoltDB *sites per host* to something interesting in `VOLTDB_HOME/examples/voter/deployment.xml`. The 
+You may want to set the number of VoltDB *sites per host* to something interesting in `VOLTDB_HOME/examples/voter/deployment.xml`. The
 *sites per host* value is equivalent to the number of cores that VoltDB will use for the server when you are running a single instance on localhost.
 
 
@@ -56,7 +56,7 @@ VoltClient
 ==========
 This provides the interface for connecting to the VoltDB server, managing event processing and executing stored procedures.
 
-Methods 
+Methods
 -----------
 VoltClient(configurationArray)
 -------------------------
@@ -117,7 +117,7 @@ VoltProcedure(name, types)
 var resultsProc = new VoltProcedure('Results');
 var initProc = new VoltProcedure('Initialize', ['int', 'string']);
 var voteProc = new VoltProcedure('Vote', ['long', 'int', 'long']);
-```  
+```
 
 A complete list of types is specified in the **Data Types** section
 
@@ -128,7 +128,7 @@ Returns an instance of a VoltQuery.
 
 VoltQuery
 =========
-VoltQuery is necessary for query invocation, but the application developer does very little with it. A VoltQuery is produced by the `VoltProcedure.getQuery()` function. That object is then passed to the `VoltClient.callProcedure`function. 
+VoltQuery is necessary for query invocation, but the application developer does very little with it. A VoltQuery is produced by the `VoltProcedure.getQuery()` function. That object is then passed to the `VoltClient.callProcedure`function.
 
 VoltQuery(procName, types)
 --------------------------
@@ -173,7 +173,7 @@ Events
 SESSION\_EVENT
 --------------
  - SESSION\_EVENT.CONNECTION: A successful connection to the volt server
- - SESSION\_EVENT.CONNECTION\_ERROR: Could not connect, see both the status code and the event handler's message parameter. 
+ - SESSION\_EVENT.CONNECTION\_ERROR: Could not connect, see both the status code and the event handler's message parameter.
  - SESSION\_EVENT.QUERY\_RESPONSE: Query executed and returned.
  - SESSION\_EVENT.QUERY\_ALLOWED: Indicates that the application may execute another query Note that this prevents your application from flooding the database and the application's code from blocking.
  - SESSION\_EVENT.QUERY\_RESPONSE\_ERROR:The query was successfully dispatched but theVoltDB server either had a critical fault or dropped the connection.
@@ -201,20 +201,20 @@ Data Types
 ----------
 These data types are not JavaScript data types. The driver uses these type specifiers to encode a JavaScript type into a VoltDB type.
  - null: Use `null`
- - byte: Use a number, not a string 
- - tinyint: Use a number, not a string 
- - short: Use a number, not a string  
- - smallint: Use a number, not a string  
- - int: Use a number, not a string  
- - integer: Use a number, not a string  
- - long: Use a number, not a string 
- - bigint: Use a number, not a string 
- - double: Use a number, not a string 
- - float: Use a number, not a string 
+ - byte: Use a number, not a string
+ - tinyint: Use a number, not a string
+ - short: Use a number, not a string
+ - smallint: Use a number, not a string
+ - int: Use a number, not a string
+ - integer: Use a number, not a string
+ - long: Use a number, not a string
+ - bigint: Use a number, not a string
+ - double: Use a number, not a string
+ - float: Use a number, not a string
  - string: Use a string
- - date: Use a number, not a string 
- - timestamp: Use a number, not a string 
- - decimal: Use a number, not a string 
+ - date: Use a number, not a string
+ - timestamp: Use a number, not a string
+ - decimal: Use a number, not a string
  - varbinary: Use a `Buffer`
 
 
