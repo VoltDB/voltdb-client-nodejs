@@ -1,2 +1,5 @@
 node_modules
-
+tools/testdb/voltdbroot/
+tools/testdb/obj/
+tools/testdb/log/
+tools/testdb/typetest.jar

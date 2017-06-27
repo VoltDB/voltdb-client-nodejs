@@ -16,3 +16,9 @@ CREATE TABLE typetest
     	test_id
   	)
 );
+
+PARTITION TABLE typetest ON COLUMN test_id;
+
+CREATE PROCEDURE FROM CLASS com.voltdb.test.typetest.proc.Insert;
+
+CREATE PROCEDURE FROM CLASS com.voltdb.test.typetest.proc.InitTestType;

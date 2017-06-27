@@ -1,11 +1,11 @@
-VoltDB NodeJS Wire Protocol Driver 1.1
-========================================
+VoltDB NodeJS Wire Protocol Driver 2.0
+======================================
 
 Requirements
 ============
 
-Node.js 0.9.1 or later
-VoltDB 2.8 or later
+Node.js 6.11.0 or later
+VoltDB 7.5 or later
 
 
 Installation
