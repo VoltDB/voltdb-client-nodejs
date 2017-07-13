@@ -29,6 +29,7 @@ function srccompile() {
     javac -classpath $CLASSPATH -d obj \
         -sourcepath ./src \
         ./src/com/voltdb/test/typetest/proc/*.java
+    jar  cvf  $APPNAME.jar -C obj .
     # stop if compilation fails
     if [ $? != 0 ]; then exit; fi
 }
@@ -36,7 +37,7 @@ function srccompile() {
 # build an application catalog
 function catalog() {
     srccompile
-    $VOLTCOMPILER obj project.xml $APPNAME.jar
+    
     # stop if compilation fails
     if [ $? != 0 ]; then exit; fi
 }
@@ -46,8 +47,8 @@ function server() {
     # if a catalog doesn't exist, build one
     if [ ! -f $APPNAME.jar ]; then catalog; fi
     # run the server
-    $VOLTDB create catalog $APPNAME.jar deployment deployment.xml \
-        license $LICENSE leader $LEADER
+    $VOLTDB init -C deployment.xml -f -j $APPNAME.jar -s ddl.sql
+    $VOLTDB start
 }
 
 # Run the target passed as the first arg on the command line
