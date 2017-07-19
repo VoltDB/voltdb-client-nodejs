@@ -39,11 +39,18 @@ VOLTDB_DIST_SRC=${VOLTDB_SRC}/obj/release/voltdb-${VOLTDB_VERSION}.tar.gz
 DIST_PATH=${BUILD_DIR}/dist
 DIST_NAME=${VOLTDB_VERSION_LABEL}_${OS_VERSION_LABEL}.tar.gz
 
+# Get the user running the scripts group id
+GID=`id -g`
+GROUP=`id -gn`
+
 # Run a container for building
 sudo docker run \
 	--volume ${VOLTDB_SRC}:/src \
 	${DOCKER_TAG} \
-	ant clean dist
+	/bin/bash -c " \
+		groupadd ${GROUP} --gid ${GID}; \
+		useradd ${USER} --uid ${UID} --gid ${GID}; \
+		sudo --user ${USER} ant clean dist;"
 
 # Copy the built Volt distribution and append the OS label (so we can create multiple builds if needed)
 mkdir -p ${DIST_PATH}
