@@ -39,4 +39,4 @@ if [ -z ${CURRENT_NETWORK} ]; then
 fi
 
 # Run Docker container
-HOSTCOUNT=1 DOCKER_IMAGE=${DOCKER_TAG} ${VOLTDB_SRC}/tools/docker/local-host-cluster.sh
+HOSTCOUNT=3 DOCKER_IMAGE=${DOCKER_TAG} ${VOLTDB_SRC}/tools/docker/local-host-cluster.sh
