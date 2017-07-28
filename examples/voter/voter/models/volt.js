@@ -181,7 +181,7 @@ exports.initClient = function(startLoop) {
     client.connect(function startup(code, event,results) {
       util.log('Node connected to VoltDB');
       
-      if(startLoop == true) {
+      if(startLoop) {
         setInterval(logResults, statsLoggingInterval);
         voteInsertLoop();
       } else {
