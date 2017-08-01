@@ -179,15 +179,19 @@ exports.initClient = function(startLoop) {
     // volt cluster to fail.
     // The second handler is more for catastrophic failures.
     client.connect(function startup(code, event,results) {
-      util.log('Node connected to VoltDB');
-      
-      if(startLoop == true) {
-        setInterval(logResults, statsLoggingInterval);
-        voteInsertLoop();
-      } else {
-        voltInit();
+      if(code == VoltConstants.STATUS_CODES.SUCCESS){
+        util.log('Node connected to VoltDB');
+        if(startLoop == true) {
+          setInterval(logResults, statsLoggingInterval);
+          voteInsertLoop();
+        } else {
+          voltInit();
+        }
       }
-
+      else{
+        util.log(`Unexpected status while initClient: ${VoltConstants.STATUS_CODE_STRINGS[code]}`);
+        process.exit();
+      }
     }, function loginError(code, event, results) {
       util.log('Node did not connect to VoltDB');
     });
