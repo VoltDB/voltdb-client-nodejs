@@ -181,7 +181,7 @@ exports.initClient = function(startLoop) {
     client.connect(function startup(code, event,results) {
       if(code == VoltConstants.STATUS_CODES.SUCCESS){
         util.log('Node connected to VoltDB');
-        if(startLoop == true) {
+      if(startLoop) {
           setInterval(logResults, statsLoggingInterval);
           voteInsertLoop();
         } else {
