@@ -190,7 +190,7 @@ exports.initClient = function(startLoop) {
       }
       else{
         util.log(`Unexpected status while initClient: ${VoltConstants.STATUS_CODE_STRINGS[code]}`);
-        process.exit();
+        process.exit(1);
       }
     }, function loginError(code, event, results) {
       util.log('Node did not connect to VoltDB');
