@@ -28,6 +28,7 @@ var VoltClient = require('../../lib/client');
 var VoltConfiguration = require('../../lib/configuration');
 var VoltProcedure = require('../../lib/query');
 var VoltQuery = require('../../lib/query');
+const debug = require("debug")("voltdb-client-nodejs:TypeTest");
 
 var util = require('util');
 var testCase = require('nodeunit');
@@ -46,23 +47,24 @@ function config() {
 exports.typetest = {
 
   setUp : function(callback) {
-    if(client == null) {
-      console.log('typetest setup called');
+    //if(client == null) {
+      debug('typetest setup called');
       client = new VoltClient(config());
       client.connect(function startup(code, event, results) {
-        console.log('dasda connected');
+        debug('dasda connected');
         callback();
       });
-    } else {
-      callback();
-    }
+    //} else {
+    //  callback();
+    //}
   },
   tearDown : function(callback) {
-    console.log('typetest teardown called');
+    debug('typetest teardown called');
+    client.exit();
     callback();
   },
   'Init test' : function(test) {
-    console.log('init test');
+    debug('init test');
     test.expect(2);
 
     var initProc = new VoltProcedure('InitTestType', ['int']);
@@ -70,16 +72,16 @@ exports.typetest = {
     query.setParameters([0]);
 
     client.callProcedure(query, function read(code, event, results) {
-      console.log('results', results);
+      debug('results %o', results);
       test.equals(code, null , 'did I get called');
       test.done();
     }, function write(code, event, results) {
       test.equals(code, null, 'Write didn\'t had an error');
-      console.log('write ok');
+      debug('write ok');
     });
   },
   'select test' : function(test) {
-    console.log('select test');
+    debug('select test');
     test.expect(11);
 
     var initProc = new VoltProcedure('TYPETEST.select', ['int']);
@@ -89,8 +91,8 @@ exports.typetest = {
     client.callProcedure(query, function read(code, event, results) {
 
       var testBuffer = new Buffer(4);
-      console.log('results inspection: ', results.table[0][0].TEST_TIMESTAMP);
-      console.log('inspect', util.inspect(results.table[0][0]));
+      debug('results inspection: %o', results.table[0][0].TEST_TIMESTAMP);
+      debug('inspect %s', util.inspect(results.table[0][0]));
 
       test.equals(code, null, 'Invalid status: ' + results.status + 'should be 1');
 
@@ -109,7 +111,7 @@ exports.typetest = {
 
       test.done();
     }, function write(code, event, results) {
-      console.log('write ok');
+      debug('write ok');
       test.ok(true, 'Write didn\'t get called');
     });
   }
