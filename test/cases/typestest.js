@@ -47,16 +47,12 @@ function config() {
 exports.typetest = {
 
   setUp : function(callback) {
-    //if(client == null) {
-      debug('typetest setup called');
-      client = new VoltClient(config());
-      client.connect(function startup(code, event, results) {
-        debug('dasda connected');
-        callback();
-      });
-    //} else {
-    //  callback();
-    //}
+    debug('typetest setup called');
+    client = new VoltClient(config());
+    client.connect(function startup(code, event, results) {
+      debug('dasda connected');
+      callback();
+    });
   },
   tearDown : function(callback) {
     debug('typetest teardown called');
