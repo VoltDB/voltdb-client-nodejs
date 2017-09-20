@@ -37,7 +37,7 @@ function srccompile() {
 # build an application catalog
 function catalog() {
     srccompile
-    
+
     # stop if compilation fails
     if [ $? != 0 ]; then exit; fi
 }
@@ -47,8 +47,14 @@ function server() {
     # if a catalog doesn't exist, build one
     if [ ! -f $APPNAME.jar ]; then catalog; fi
     # run the server
-    $VOLTDB init -C deployment.xml -f -j $APPNAME.jar -s ddl.sql
-    $VOLTDB start
+    #$VOLTDB init -C deployment.xml -f -j $APPNAME.jar -s ddl.sql
+    #$VOLTDB start
+
+	  PORT=`docker port node1 21212 | cut -d: -f2`
+
+    # Load the procs into the db
+    echo "load classes typetest.jar;" | sqlcmd --port=$PORT
+    echo "file ddl.sql;" | sqlcmd --port=$PORT
 }
 
 # Run the target passed as the first arg on the command line

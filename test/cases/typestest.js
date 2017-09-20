@@ -32,6 +32,9 @@ const debug = require("debug")("voltdb-client-nodejs:TypeTest");
 
 var util = require('util');
 var testCase = require('nodeunit');
+const dockerUtil = require("../util/dockerUtil.js");
+
+const VOLT_CONTAINER_NAME = "node1";
 
 var client = null;
 var initProc = new VoltProcedure('InitTestType', ['int']);
@@ -39,6 +42,8 @@ var initProc = new VoltProcedure('InitTestType', ['int']);
 function config() {
   var config = new VoltConfiguration();
   config.host = 'localhost';
+  const voltPort = dockerUtil.getExposedVoltPort(VOLT_CONTAINER_NAME);
+  config.port = voltPort;
   var configs = [];
   configs.push(config);
   return configs;
