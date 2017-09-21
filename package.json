@@ -1,40 +1,45 @@
 {
-    "name": "voltjs",
-    "version": "2.0.0",
-    "description": "VoltDB binary driver",
-    "keywords": [
-        "voltdb",
-        "client",
-        "driver",
-        "binary driver"
-    ],
-    "bugs": {
-        "url": "https://github.com/VoltDB/voltdb-client-nodejs/issues",
-        "email": "support@voltdb.com"
-    },
-    "license": "MIT",
-    "author": "VoltDB",
-    "engines": {
-        "node": ">= 6.11.0"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/VoltDB/voltdb-client-nodejs.git"
-    },
+  "name": "voltjs",
+  "version": "2.0.0",
+  "description": "VoltDB binary driver",
+  "keywords": [
+    "voltdb",
+    "client",
+    "driver",
+    "binary driver"
+  ],
+  "bugs": {
+    "url": "https://github.com/VoltDB/voltdb-client-nodejs/issues",
+    "email": "support@voltdb.com"
+  },
+  "license": "MIT",
+  "author": "VoltDB",
+  "engines": {
+    "node": ">= 6.11.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/VoltDB/voltdb-client-nodejs.git"
+  },
     "scripts": {
         "lint": "eslint test/util",
         "test": "node test/testrunner.js -i local"
     },
-    "dependencies": {
-        "bignumber": "^1.1.0",
-        "ctype": "^0.5.0",
-        "cli": "^1.0.0",
-        "debug": "^3.0.1",
-        "supports-color": "^4.4.0"
-    },
-    "devDependencies": {
-        "eslint": "^4.11.0",
-        "nodeunit": "^0.11.0",
-        "yargs": "^10.0.3"
-    }
+  "dependencies": {
+    "bignumber": "^1.1.0",
+    "ctype": "^0.5.0",
+    "cli": "^1.0.0",
+    "debug": "^3.0.1",
+    "supports-color": "^4.4.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.7.1",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-node": "^5.1.1",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "nodeunit": "^0.11.0",
+    "yargs": "^10.0.3"
+  }
 }
