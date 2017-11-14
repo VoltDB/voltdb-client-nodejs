@@ -21,6 +21,10 @@
         "type": "git",
         "url": "https://github.com/VoltDB/voltdb-client-nodejs.git"
     },
+    "scripts": {
+        "lint": "eslint test/util",
+        "test": "node test/testrunner.js -i local"
+    },
     "dependencies": {
         "bignumber": "^1.1.0",
         "ctype": "^0.5.0",
@@ -29,6 +33,8 @@
         "supports-color": "^4.4.0"
     },
     "devDependencies": {
-        "nodeunit": "^0.11.0"
+        "eslint": "^4.11.0",
+        "nodeunit": "^0.11.0",
+        "yargs": "^10.0.3"
     }
 }

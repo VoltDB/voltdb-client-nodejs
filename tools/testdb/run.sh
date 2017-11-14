@@ -46,15 +46,21 @@ function catalog() {
 function server() {
     # if a catalog doesn't exist, build one
     if [ ! -f $APPNAME.jar ]; then catalog; fi
-    # run the server
-    #$VOLTDB init -C deployment.xml -f -j $APPNAME.jar -s ddl.sql
-    #$VOLTDB start
-
-	  PORT=`docker port node1 21212 | cut -d: -f2`
-
-    # Load the procs into the db
+    
+  PORT=`docker port node1 21212 | cut -d: -f2`
+  if [$? -eq 0]; then
+    # Found a Docker container running Volt, load the procs into the db
+    echo "Found local Docker container running Volt, loading schema"
     echo "load classes typetest.jar;" | sqlcmd --port=$PORT
+    echo "file ddl-drop.sql;" | sqlcmd --port=$PORT
     echo "file ddl.sql;" | sqlcmd --port=$PORT
+  else
+    # No Docker container running Volt, start a local instance if we can
+    echo "Could not find local Docker container running Volt, starting local instance with schema"
+    # run the server
+    $VOLTDB init -C deployment.xml -f -j $APPNAME.jar -s ddl.sql
+    $VOLTDB start
+  fi
 }
 
 # Run the target passed as the first arg on the command line

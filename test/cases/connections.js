@@ -25,10 +25,11 @@ var VoltClient = require('../../lib/client');
 var VoltConfiguration = require('../../lib/configuration');
 var util = require('util');
 var testCase = require('nodeunit');
+const testContext = require("../util/test-context");
 const debug = require("debug")("voltdb-client-nodejs:ConnectionsTest");
-const dockerUtil = require("../util/dockerUtil");
 
-const VOLT_CONTAINER_NAME = "node1";
+// Setup context
+testContext.setup();
 
 function goodConfig() {
   return config('localhost');
@@ -42,8 +43,7 @@ function config(host) {
   debug('this config got called');
   var config = new VoltConfiguration();
   config.host = host;
-  const voltPort = dockerUtil.getExposedVoltPort(VOLT_CONTAINER_NAME);
-  config.port = voltPort;
+  config.port = testContext.port();
   var configs = [];
   configs.push(config);
   return configs;

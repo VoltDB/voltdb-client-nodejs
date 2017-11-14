@@ -1,5 +1,4 @@
 -- test types
-DROP TABLE typetest IF EXISTS;
 CREATE TABLE typetest
 (
 	test_id			integer			NOT NULL,
@@ -20,8 +19,6 @@ CREATE TABLE typetest
 
 PARTITION TABLE typetest ON COLUMN test_id;
 
-DROP PROCEDURE com.voltdb.test.typetest.proc.Insert IF EXISTS;
 CREATE PROCEDURE FROM CLASS com.voltdb.test.typetest.proc.Insert;
 
-DROP PROCEDURE com.voltdb.test.typetest.proc.InitTestType IF EXISTS;
 CREATE PROCEDURE FROM CLASS com.voltdb.test.typetest.proc.InitTestType;

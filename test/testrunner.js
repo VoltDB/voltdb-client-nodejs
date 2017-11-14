@@ -24,9 +24,12 @@
 var nodeunit = require('nodeunit');
 var fs = require('fs');
 var child_process = require('child_process');
+const path = require('path');
+    
+const testCasesDirectory = path.resolve(__dirname, "cases");
 
 var TestRunner = function() {
-  this.testDirectories = ["./cases"];
+  this.testDirectories = [testCasesDirectory];
   this.fileList = [];
 }
 tr = TestRunner.prototype;
@@ -45,7 +48,7 @@ tr.loadTests = function() {
 tr.run = function() {
   var reporter = nodeunit.reporters.default;
   reporter.run(this.fileList, null, function something() {
-    process.exit(1);
+    process.exit(0);
   });
 }
 function main() {

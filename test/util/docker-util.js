@@ -1,8 +1,8 @@
-!(function(global) {
+!(function(global) { // eslint-disable-line no-unused-vars
 
   "use strict";
 
-  const childProcess = require('child_process');
+  const childProcess = require("child_process");
   const debug = require("debug")("voltdb-client-nodejs:DockerUtil");
   
   /*
