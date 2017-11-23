@@ -47,8 +47,9 @@ function server() {
     # if a catalog doesn't exist, build one
     if [ ! -f $APPNAME.jar ]; then catalog; fi
     
-  PORT=`docker port node1 21212 | cut -d: -f2`
-  if [$? -eq 0]; then
+  DOCKER_QUERY=`docker port node1 21212`
+  if [ $? -eq 0 ]; then
+    PORT=`echo ${DOCKER_QUERY} | cut -d: -f2`
     # Found a Docker container running Volt, load the procs into the db
     echo "Found local Docker container running Volt, loading schema"
     echo "load classes typetest.jar;" | sqlcmd --port=$PORT

@@ -9,8 +9,12 @@
 
 
   require("nodeunit");
+  const testContext = require("../util/test-context");
   const debug = require("debug")("voltdb-client-nodejs:BufferTest");
 
+  //Setup context
+  testContext.setup();
+  
   /**
    * A "good" client config that points to a volt instance on localhost
    */
@@ -20,6 +24,7 @@
     
     const config = new VoltConfiguration();
     config.host = "localhost";
+    config.port = testContext.port();
     
     configs.push(config);
     
