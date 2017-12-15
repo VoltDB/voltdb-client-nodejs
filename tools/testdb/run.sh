@@ -37,7 +37,7 @@ function srccompile() {
 # build an application catalog
 function catalog() {
     srccompile
-    
+
     # stop if compilation fails
     if [ $? != 0 ]; then exit; fi
 }
@@ -46,9 +46,22 @@ function catalog() {
 function server() {
     # if a catalog doesn't exist, build one
     if [ ! -f $APPNAME.jar ]; then catalog; fi
+    
+  DOCKER_QUERY=`docker port node1 21212`
+  if [ $? -eq 0 ]; then
+    PORT=`echo ${DOCKER_QUERY} | cut -d: -f2`
+    # Found a Docker container running Volt, load the procs into the db
+    echo "Found local Docker container running Volt, loading schema"
+    echo "load classes typetest.jar;" | sqlcmd --port=$PORT
+    echo "file ddl-drop.sql;" | sqlcmd --port=$PORT
+    echo "file ddl.sql;" | sqlcmd --port=$PORT
+  else
+    # No Docker container running Volt, start a local instance if we can
+    echo "Could not find local Docker container running Volt, starting local instance with schema"
     # run the server
     $VOLTDB init -C deployment.xml -f -j $APPNAME.jar -s ddl.sql
     $VOLTDB start
+  fi
 }
 
 # Run the target passed as the first arg on the command line

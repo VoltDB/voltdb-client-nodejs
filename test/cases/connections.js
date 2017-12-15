@@ -25,7 +25,11 @@ var VoltClient = require('../../lib/client');
 var VoltConfiguration = require('../../lib/configuration');
 var util = require('util');
 var testCase = require('nodeunit');
+const testContext = require("../util/test-context");
 const debug = require("debug")("voltdb-client-nodejs:ConnectionsTest");
+
+// Setup context
+testContext.setup();
 
 function goodConfig() {
   return config('localhost');
@@ -39,6 +43,7 @@ function config(host) {
   debug('this config got called');
   var config = new VoltConfiguration();
   config.host = host;
+  config.port = testContext.port();
   var configs = [];
   configs.push(config);
   return configs;

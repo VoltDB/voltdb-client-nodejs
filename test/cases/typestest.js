@@ -31,7 +31,11 @@ var VoltQuery = require('../../lib/query');
 const debug = require("debug")("voltdb-client-nodejs:TypeTest");
 
 var util = require('util');
+const testContext = require("../util/test-context");
 var testCase = require('nodeunit');
+
+//Setup context
+testContext.setup();
 
 var client = null;
 var initProc = new VoltProcedure('InitTestType', ['int']);
@@ -39,6 +43,8 @@ var initProc = new VoltProcedure('InitTestType', ['int']);
 function config() {
   var config = new VoltConfiguration();
   config.host = 'localhost';
+  const voltPort = testContext.port();
+  config.port = voltPort;
   var configs = [];
   configs.push(config);
   return configs;
