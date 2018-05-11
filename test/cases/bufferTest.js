@@ -39,6 +39,7 @@
     const p = new Promise(function(resolve, reject) {  
       client.connect(function(code, event, results) {
         if(code === VoltConstants.STATUS_CODES.SUCCESS){
+          console.log("Code:", code)
           resolve({errorCode: code, eventCode: event, results: results});
         }
         else{
