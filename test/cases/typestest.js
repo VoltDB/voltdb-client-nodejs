@@ -24,97 +24,121 @@
 // TODO: Remove a lot of the console/util logging statements being used for
 // debugging purposes.
 
-var VoltClient = require('../../lib/client');
-var VoltConfiguration = require('../../lib/configuration');
-var VoltProcedure = require('../../lib/query');
-var VoltQuery = require('../../lib/query');
-const debug = require("debug")("voltdb-client-nodejs:TypeTest");
+var VoltClient = require("../../lib/client");
+var VoltProcedure = require("../../lib/query");
+const debug = console.log; //require("debug")("voltdb-client-nodejs:TypeTest");
 
-var util = require('util');
+var util = require("util");
 const testContext = require("../util/test-context");
-var testCase = require('nodeunit');
+require("nodeunit");
 
 //Setup context
 testContext.setup();
 
 var client = null;
-var initProc = new VoltProcedure('InitTestType', ['int']);
 
 function config() {
-  var config = new VoltConfiguration();
-  config.host = 'localhost';
-  const voltPort = testContext.port();
-  config.port = voltPort;
-  var configs = [];
-  configs.push(config);
-  return configs;
+  return require("../config");
 }
 
-exports.typetest = {
+const dropTableSQL = "drop table typetest if exists;";
+const createTableSQL =`CREATE TABLE typetest(
+  test_id         integer         NOT NULL,
+  test_tiny       tinyint         NOT NULL,
+  test_small      smallint        NOT NULL,
+  test_integer    integer         NOT NULL,
+  test_big        bigint          NOT NULL,
+  test_float      float           NOT NULL,
+  test_decimal    decimal         NOT NULL,
+  test_varchar    varchar(100)    NOT NULL,
+  test_varbinary  varbinary(4)    NOT NULL,
+  test_timestamp  timestamp       NOT NULL,
+  PRIMARY KEY (test_id)
+);`;
+const partitionTableSQL = "PARTITION TABLE typetest ON COLUMN test_id;";
 
+function syncQuery(queryString){
+  debug("Query | query: ", queryString);
+  return client.adHoc(queryString).read.then( function read(response){
+    if ( response.code ) {
+      throw new Error(response.results.statusString);
+    }
+
+    return response;
+  });
+}
+
+const VAR_BINARY_VALUE = new Buffer([8,8,8,8]);
+const TIMESTAMP_VALUE = new Date(1331310436605);
+
+exports.typetest = {
   setUp : function(callback) {
-    debug('typetest setup called');
+    debug("typetest setup called");
     client = new VoltClient(config());
-    client.connect(function startup(code, event, results) {
-      debug('dasda connected');
+    client.connect().then(function startup() {
+      if ( !client.isConnected() ) throw Error("Client not connected");
       callback();
     });
   },
   tearDown : function(callback) {
-    debug('typetest teardown called');
-    client.exit();
-    callback();
+    if ( client ) {
+      debug("typetest teardown called");
+      client.exit();
+      callback();
+    }
   },
-  'Init test' : function(test) {
-    debug('init test');
-    test.expect(2);
+  "Init test" : function(test) {
+    debug("init test");
+    test.expect(1);
+    
+    return syncQuery(dropTableSQL)
+      .then ( () => syncQuery(createTableSQL))
+      .then (() => syncQuery(partitionTableSQL))
+      .then( () => {
+      //Using TYPETEST.insert instead of JavaStoredProcedure to skip the Java Source Compiling and Loading
+        const args = [0,1,2,3,4,5.1,6.000342,"seven",VAR_BINARY_VALUE,TIMESTAMP_VALUE.getTime()];
+        const signature = ["integer","tinyint","smallint","integer","bigint","float","decimal","string","varbinary","timestamp"];
+        const initProc = new VoltProcedure("TYPETEST.insert", signature);
+        const query = initProc.getQuery();
+        query.setParameters(args);
+      
+        client.callProcedure(query).read.then( ({ results }) => {
+          debug("\nInit Test results %o", results);
+          test.equals(results.status, 1 , "did I get called");
+          test.done();
+        });
+      }).catch(console.error);
+  },
 
-    var initProc = new VoltProcedure('InitTestType', ['int']);
+  "select test" : function(test) {
+    debug("select test");
+    test.expect(12);
+
+    var initProc = new VoltProcedure("TYPETEST.select", ["int"]);
     var query = initProc.getQuery();
     query.setParameters([0]);
 
-    client.callProcedure(query, function read(code, event, results) {
-      debug('results %o', results);
-      test.equals(code, null , 'did I get called');
-      test.done();
-    }, function write(code, event, results) {
-      test.equals(code, null, 'Write didn\'t had an error');
-      debug('write ok');
-    });
-  },
-  'select test' : function(test) {
-    debug('select test');
-    test.expect(11);
+    const call = client.callProcedure(query);
+    
+    call.read.then( function read({ results }) {
+      debug("Select test results:", results);
+      debug("results inspection: %o", results.table[0].data[0].TEST_TIMESTAMP);
+      debug("inspect %s", util.inspect(results.table[0].data[0]));
 
-    var initProc = new VoltProcedure('TYPETEST.select', ['int']);
-    var query = initProc.getQuery();
-    query.setParameters([0]);
-
-    client.callProcedure(query, function read(code, event, results) {
-
-      var testBuffer = new Buffer(4);
-      debug('results inspection: %o', results.table[0][0].TEST_TIMESTAMP);
-      debug('inspect %s', util.inspect(results.table[0][0]));
-
-      test.equals(code, null, 'Invalid status: ' + results.status + 'should be 1');
-
-      test.equals(results.table[0][0].TEST_ID, 0, 'Wrong row ID, should be 0');
-      test.equals(results.table[0][0].TEST_TINY, 1, 'Wrong tiny, should be 1');
-      test.equals(results.table[0][0].TEST_SMALL, 2, 'Wrong small, should be 2');
-      test.equals(results.table[0][0].TEST_INTEGER, 3, 'Wrong integer, should be 3');
-      test.equals(results.table[0][0].TEST_BIG, 4, 'Wrong integer, should be 4');
-      test.equals(results.table[0][0].TEST_FLOAT, 5.1, 'Wrong float, should be 5.1');
-      test.equals(results.table[0][0].TEST_DECIMAL, 6.000342, 'Wrong decimal, should be 6.000342');
-      test.equals(results.table[0][0].TEST_VARCHAR, 'seven', 'Wrong varchar, should be seven');
-      // TODO: Add varbinary buffer comparison code.
-      //test.equals(results.table[0][0].TEST_VARBINARY, 6.00034231,
-      // results.table[0][0].TEST_VARBINARY);
-      test.equals(results.table[0][0].TEST_TIMESTAMP.getTime(), (new Date(1331310436605)).getTime(), (new Date(1331310436605)).toString() + ": " + results.table[0][0].TEST_TIMESTAMP);
+      test.equals(results.status, 1, "Invalid status: " + results.status + "should be 1");
+      test.equals(results.table[0].data.length, 1, "Row count should be 1");
+      test.equals(results.table[0].data[0].TEST_ID, 0, "Wrong row ID, should be 0");
+      test.equals(results.table[0].data[0].TEST_TINY, 1, "Wrong tiny, should be 1");
+      test.equals(results.table[0].data[0].TEST_SMALL, 2, "Wrong small, should be 2");
+      test.equals(results.table[0].data[0].TEST_INTEGER, 3, "Wrong integer, should be 3");
+      test.equals(results.table[0].data[0].TEST_BIG, 4, "Wrong integer, should be 4");
+      test.equals(results.table[0].data[0].TEST_FLOAT, 5.1, "Wrong float, should be 5.1");
+      test.equals(results.table[0].data[0].TEST_DECIMAL, 6.000342, "Wrong decimal, should be 6.000342");
+      test.equals(results.table[0].data[0].TEST_VARCHAR, "seven", "Wrong varchar, should be seven");
+      test.ok(results.table[0].data[0].TEST_VARBINARY.equals(VAR_BINARY_VALUE), "Wrong varbinary, should be " + VAR_BINARY_VALUE);
+      test.equals(results.table[0].data[0].TEST_TIMESTAMP.getTime(), TIMESTAMP_VALUE.getTime(), TIMESTAMP_VALUE.toString() + ": " + results.table[0].data[0].TEST_TIMESTAMP);
 
       test.done();
-    }, function write(code, event, results) {
-      debug('write ok');
-      test.ok(true, 'Write didn\'t get called');
     });
   }
 };

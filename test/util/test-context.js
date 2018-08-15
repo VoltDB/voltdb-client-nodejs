@@ -27,11 +27,11 @@
   function _setup(){
 
     var argv = yargs
+      .usage("$0 -i instance [testname]")
       .alias("i", "instance")
       .demandOption(["i"])
       .describe("i", "Specify the type of VoltDB instance the tests will be run against. " +
           "Can be a local instance [local] or a local instance running in a Docker container [docker]")
-      .choices("i", ["local", "docker"])
       .argv;
     
     config.instance = argv.instance;

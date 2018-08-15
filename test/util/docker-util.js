@@ -4,7 +4,7 @@
 
   const childProcess = require("child_process");
   const debug = require("debug")("voltdb-client-nodejs:DockerUtil");
-  const os = require('os');
+  const os = require("os");
   
   /*
    * TODO: Should eventually go in VoltConstants. 
@@ -33,7 +33,7 @@
     if(dockerPortResponse.status !== 0){
       // Failure, log a warning and just fall through, returning the default port
       console.warn(`Docker port query failure | Will return default port '${VOLT_CLIENT_PORT}'. \
-Docker port query for container '${containerName}' and port '${VOLT_CLIENT_PORT}' failed, error was:${os.EOL} \ 
+Docker port query for container '${containerName}' and port '${VOLT_CLIENT_PORT}' failed, error was:${os.EOL}
 ${dockerPortResponse.stderr.toString()}`);
     }
     else{
@@ -46,8 +46,8 @@ ${dockerPortResponse.stderr.toString()}`);
       }
       else{
         // Failure, log a warning and just fall through, returning the default port
-        console.warn(`Docker port query failure | Will return default port '${VOLT_CLIENT_PORT}'. \
-Docker port query for container '${containerName}' and port '${VOLT_CLIENT_PORT}' returned unrecognised response, response was:${os.EOL} \
+        console.warn(`Docker port query failure | Will return default port '${VOLT_CLIENT_PORT}'.
+Docker port query for container '${containerName}' and port '${VOLT_CLIENT_PORT}' returned unrecognised response, response was:${os.EOL}
 ${dockerPortResponseString}`);
       }
     }

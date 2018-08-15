@@ -33,10 +33,10 @@
  * client code.
  */
 
-var express = require('express'), 
-routes = require('./routes'), volt = require('./models/volt'), 
-votes = require('./jsons/votes'), util = require('util'), 
-cluster = require('cluster'), numCPUs = require('os').cpus().length;
+var express = require("express"), 
+  routes = require("./routes"), volt = require("./models/volt"), 
+  votes = require("./jsons/votes"), util = require("util"), 
+  cluster = require("cluster"), numCPUs = require("os").cpus().length;
 
 function webserverProcess() {
   var app = module.exports = express.createServer();
@@ -44,27 +44,27 @@ function webserverProcess() {
   // Configuration
 
   app.configure(function() {
-    app.set('views', __dirname + '/views');
-    app.set('view engine', 'jade');
+    app.set("views", __dirname + "/views");
+    app.set("view engine", "jade");
     app.use(express.bodyParser());
     app.use(express.methodOverride());
     app.use(app.router);
-    app.use(express.static(__dirname + '/public'));
+    app.use(express.static(__dirname + "/public"));
   });
 
-  app.configure('production', function() {
+  app.configure("production", function() {
     app.use(express.errorHandler({
       dumpExceptions : true,
       showStack : true
     }));
   });
 
-  app.configure('production', function() {
+  app.configure("production", function() {
     app.use(express.errorHandler());
   });
   // Routes
-  app.get('/', routes.index);
-  app.get('/results', votes.votes);
+  app.get("/", routes.index);
+  app.get("/results", votes.votes);
 
   app.listen(3000);
 
