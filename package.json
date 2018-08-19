@@ -27,9 +27,10 @@
   },
   "dependencies": {
     "bignumber": "^1.1.0",
-    "ctype": "^0.5.0",
     "cli": "^1.0.0",
+    "ctype": "^0.5.0",
     "debug": "^3.0.1",
+    "murmurhash-native": "^3.2.4",
     "supports-color": "^4.4.0"
   },
   "devDependencies": {

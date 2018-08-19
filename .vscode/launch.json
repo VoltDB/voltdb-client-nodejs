@@ -9,7 +9,7 @@
             "request": "launch",
             "name": "Launch Program",
             "program": "${workspaceFolder}/test\\testrunner.js",
-            "args" : ["-i","local","reconnect"]
+            "args" : ["-i","local","clientaffinity"]
         }
     ]
 }
