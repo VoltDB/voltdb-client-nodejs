@@ -55,7 +55,25 @@
         { value: "i", type: "string", expected: "5" },
         { value: "w", type: "string", expected: "6" },
         { value: "f", type: "string", expected: "16" },
-        { value: "test", type: "string", expected: "26" }
+        { value: "test", type: "string", expected: "26" },
+
+        { value: 7, type: "int", expected: "0" },
+        { value: -2, type: "int", expected: "1" },
+        { value: -1, type: "int", expected: "2" },
+        { value: -4, type: "int", expected: "3" },
+        { value: 0, type: "int", expected: "5" },
+        { value: 2, type: "int", expected: "6" },
+        { value: 11, type: "int", expected: "16" },
+        { value: 1, type: "int", expected: "26" },
+
+        { value: Buffer.from([0x05]), type: "varbinary", expected: "0" },
+        { value: Buffer.from([0x01]), type: "varbinary", expected: "1" },
+        { value: Buffer.from([0x00]), type: "varbinary", expected: "2" },
+        { value: Buffer.from([0x0C]), type: "varbinary", expected: "3" },
+        { value: Buffer.from([0x06]), type: "varbinary", expected: "5" },
+        { value: Buffer.from([0x04]), type: "varbinary", expected: "6" },
+        { value: Buffer.from([0X0B]), type: "varbinary", expected: "16" },
+        { value: Buffer.from([0x0E]), type: "varbinary", expected: "26" },
       ];
       
       debug("getPartitionForValue");
@@ -72,6 +90,7 @@
             const actual = client._hashinator.getPartitionKeyForValue(testCase.type, testCase.value);
 
             test.equals(actual, testCase.expected, `Partition key for ${JSON.stringify(testCase.value)} should be ${testCase.expected}`);
+
           });
 
           test.done();
