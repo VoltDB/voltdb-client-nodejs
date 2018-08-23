@@ -20,21 +20,51 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-
-package com.voltdb.test.typetest.proc;
+package com.voltdb.test.volttable.proc;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 
 import org.voltdb.*;
+import org.voltdb.types.TimestampType;
 
-//@ProcInfo (partitionInfo = "typetest.test_id:0", singlePartition = true)
-public class InitTestType extends Insert {
-	
-	public long run(int blah) {
-		return super.run(0, (byte)1, (short)2, 3, 4l, 5.1d, new BigDecimal(6.000342d,MathContext.DECIMAL32),
-				"seven", 
-				new byte[] { (byte)8, (byte)8, (byte)8, (byte)8},
-				1331310436605000l);
+public class VoltTableTest extends VoltProcedure {
+
+	public static final long SUCCESS = 0;
+
+	public final SQLStmt insertStmt = new SQLStmt(
+			"insert into typetest "
+			/*+ " ( test_id"
+			+ ",test_tiny"
+			+ ",test_small"
+			+ ",test_integer"
+			+ ",test_big"
+			+ ",test_float"
+			+ ",test_decimal"
+			+ ",test_varchar"
+			+ ",test_varbinary"
+			+ ",test_timestamp )" */
+			+ " values ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ? );");
+
+	public long run( VoltTable vt ) throws VoltAbortException {
+
+		vt.resetRowPosition();
+		vt.advanceRow();
+        
+		voltQueueSQL( insertStmt, 
+            vt.get(0,VoltType.INTEGER), 
+            vt.get(1,VoltType.TINYINT),
+            vt.get(2,VoltType.SMALLINT),
+            vt.get(3,VoltType.INTEGER),
+            vt.get(4,VoltType.BIGINT),
+            vt.get(5,VoltType.FLOAT),
+            vt.get(6,VoltType.DECIMAL),
+            vt.get(7,VoltType.STRING),
+            vt.get(8,VoltType.VARBINARY),
+            vt.get(9,VoltType.TIMESTAMP)
+        );
+
+		voltExecuteSQL();
+
+		return VoltTableTest.SUCCESS;
 	}
 }
