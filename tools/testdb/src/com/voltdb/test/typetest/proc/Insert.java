@@ -27,9 +27,9 @@ import java.math.BigDecimal;
 import org.voltdb.*;
 import org.voltdb.types.TimestampType;
 
-@ProcInfo (
+/*@ProcInfo (
 		partitionInfo = "typetest.test_id:0",
-		singlePartition = true)
+		singlePartition = true)*/
 public class Insert extends VoltProcedure {
 
 	public static final long SUCCESS = 0;

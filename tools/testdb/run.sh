@@ -28,7 +28,7 @@ function srccompile() {
     mkdir -p obj
     javac -classpath $CLASSPATH -d obj \
         -sourcepath ./src \
-        ./src/com/voltdb/test/typetest/proc/*.java
+        ./src/com/voltdb/test/*/proc/*.java
     jar  cvf  $APPNAME.jar -C obj .
     # stop if compilation fails
     if [ $? != 0 ]; then exit; fi

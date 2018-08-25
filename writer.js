@@ -32,37 +32,36 @@
  *
  */
 
-var os = require('os')
-var cli = require('cli');
-var util = require('util');
-var cluster = require('cluster');
-var VoltClient = require('./lib/client');
-var VoltProcedure = require('./lib/query');
-var VoltQuery = require('./lib/query');
+var os = require("os");
+var cli = require("cli");
+var util = require("util");
+var cluster = require("cluster");
+var VoltClient = require("./lib/client");
+var VoltProcedure = require("./lib/query");
 
-var numCPUs = os.cpus().length
-var logTag = "master  "
+var numCPUs = os.cpus().length;
+var logTag = "master  ";
 
 var client = null;
-var resultsProc = new VoltProcedure('Results');
-var initProc = new VoltProcedure('Initialize', ['int', 'string']);
-var writeProc = new VoltProcedure('Vote', ['long', 'int', 'long']);
+var resultsProc = new VoltProcedure("Results");
+var initProc = new VoltProcedure("Initialize", ["int", "string"]);
+var writeProc = new VoltProcedure("Vote", ["long", "int", "long"]);
 var throughput = 0;
 
 var options = cli.parse({
-  loops : ['c', 'Number of loops to run', 'number', 10000],
-  voltGate : ['h', 'VoltDB host (any if multi-node)', 'string', 'localhost'],
-  workers : ['f', 'client worker forks', 'number', numCPUs],
-  verbose : ['v', 'verbose output'],
-  debug : ['d', 'debug output']
+  loops : ["c", "Number of loops to run", "number", 10000],
+  voltGate : ["h", "VoltDB host (any if multi-node)", "string", "localhost"],
+  workers : ["f", "client worker forks", "number", numCPUs],
+  verbose : ["v", "verbose output"],
+  debug : ["d", "debug output"]
 });
 
 var workers = options.workers;
 var vlog = options.verbose || options.debug ? log : function() {
-}
+};
 var vvlog = options.debug ? log : function() {
-}
-var cargos = 'a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z';
+};
+var cargos = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z";
 
 if(cluster.isMaster)
   master_main();
@@ -71,68 +70,72 @@ else
 
 function master_main() {
 
-  log("-- Crude Forking Write Benchmark Client --")
+  log("-- Crude Forking Write Benchmark Client --");
 
   log("VoltDB host:  " + options.voltGate);
   log("worker forks: " + workers);
 
   // fork workers
   for(var i = 0; i < workers; i++) {
-    vvlog('forking worker #' + i)
-    var worker = cluster.fork()
+    vvlog("forking worker #" + i);
+    var worker = cluster.fork();
 
     // result counter
-    worker.on('message', function(msg) {
-      if(msg.cmd && msg.cmd == 'result') {
-        throughput += msg.throughput
+    worker.on("message", function(msg) {
+      if(msg.cmd && msg.cmd == "result") {
+        throughput += msg.throughput;
       }
     });
   }
 
   // track exits, print total
   var exited = 0;
-  cluster.on('death', function(worker) {
-    vlog('worker (pid ' + worker.pid + ') exits.')
+  cluster.on("death", function(worker) {
+    vlog("worker (pid " + worker.pid + ") exits.");
     exited++;
     if(exited == workers) {
-      log("Total: " + Math.round(throughput) + " TPS")
+      log("Total: " + Math.round(throughput) + " TPS");
     }
-  })
+  });
 }
 
 function worker_main() {
-  logTag = 'worker ' + process.env.NODE_WORKER_ID
-  vvlog('worker main')
+  logTag = "worker " + process.env.NODE_WORKER_ID;
+  vvlog("worker main");
 
   // define and start a Volt client
   client = new VoltClient([{
     host : options.voltGate,
     port : 21212,
-    username : 'user',
-    password : 'password',
-    service : 'database',
+    username : "user",
+    password : "password",
+    service : "database",
     queryTimeout : 50000
 
   }]);
-  client.connect(function startup(results) {
-    vvlog('Node up');
-    voltInit();
-  }, function loginError(results) {
-    vvlog('Node up (on Error)');
+  client.connect().then(({ connected, errors }) => {
+    if ( connected ) {
+      vvlog("Node up");
+    } else {
+      vvlog("Node up (on Error)", { errors });
+    }
+
     voltInit();
   });
-  vvlog('connected')
+  
 }
 
 function voltInit() {
-  vvlog('voltInit');
+  vvlog("voltInit");
   var query = initProc.getQuery();
   query.setParameters([cargos.length, cargos]);
-  client.call(query, function initWriter(results) {
-    var job = {
+
+  client.callProcedure(query).onQueryAllowed.then( () => {
+    const job = {
       loops : options.loops,
       steps : getSteps()
     };
+
     step(job);
   });
 }
@@ -147,30 +150,19 @@ function getSteps() {
 }
 
 function writeResults(job) {
-  vvlog('writeResults');
-  var query = resultsProc.getQuery();
-  client.call(query, function displayResults(results) {
-    var mytotalwrites = 0;
-    var msg = '';
-    var longestString = 0;
-    var rows = results.table[0];
-    for(var i = 0; i < rows.length; i++) {
-      mytotalwrites += rows[i].TOTAL_VOTES;
-      msg += util.format("%s\t%d", rows[i].CONTESTANT_NUMBER, rows[i].TOTAL_VOTES);
-    }
-    // msg += util.format("%d writes", mytotalwrites);
-    // log(msg);
-    step(job);
-  });
+  vvlog("writeResults");
+  const query = resultsProc.getQuery();
+  client.callProcedure(query).read.then( () => step(job) );
 }
 
 function connectionStats() {
   client.connectionStats();
 }
 
-function writeEnd(job) {
-  client.connectionStats();
-  vvlog('writeEnd');
+function writeEnd() {
+  connectionStats();
+  vvlog("writeEnd");
+
   process.exit();
 }
 
@@ -191,30 +183,34 @@ function writeInsertLoop(job) {
     if(index < job.loops) {
 
       query.setParameters([getRand(1E6), getCandidate(), 200000]);
-      client.call(query, function displayResults(results) {
+      const call = client.callProcedure(query);
+      
+      call.read.then( () => {
         vvlog("reads ", reads);
         reads--;
+
         if(reads == 0) {
           logTime(startTime, job.loops, "Results");
           step(job);
         } else {
           vvlog("reads ", reads);
         }
-      }, function readyToWrite() {
+      })<
 
+      call.onQueryAllowed.then ( () => {
         if(index < job.loops) {
           if(index && index % 5000 == 0) {
-            vlog('Executed ' + index + ' writes in ' + ((new Date().getTime()) - chunkTime) + 'ms ' + util.inspect(process.memoryUsage()));
+            vlog("Executed " + index + " writes in " + ((new Date().getTime()) - chunkTime) + "ms " + util.inspect(process.memoryUsage()));
             chunkTime = new Date().getTime();
           }
           index++;
           process.nextTick(innerLoop);
         } else {
-          log(doneWith++, 'Time to stop voting: ', index);
+          log(doneWith++, "Time to stop voting: ", index);
         }
       });
     } else {
-      vvlog('Index is: ' + index + ' and ' + job.loops);
+      vvlog("Index is: " + index + " and " + job.loops);
     }
   };
   // void stack, yield
@@ -222,15 +218,15 @@ function writeInsertLoop(job) {
 
 }
 
-function logTime(startTime, writes, typeString) {
+function logTime(startTime, writes) {
 
   var endTimeMS = Math.max(1, new Date().getTime() - startTime);
   var throughput = writes * 1000 / endTimeMS;
 
-  log(util.format('%d transactions in %d milliseconds.\n' + '%d transactions per second', writes, endTimeMS, throughput));
+  log(util.format("%d transactions in %d milliseconds.\n" + "%d transactions per second", writes, endTimeMS, throughput));
 
   process.send({
-    cmd : 'result',
+    cmd : "result",
     throughput : throughput
   });
 }
