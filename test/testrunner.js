@@ -21,12 +21,12 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var nodeunit = require("nodeunit");
-var fs = require("fs");
-require("child_process");
-const path = require("path");
+var nodeunit = require('nodeunit');
+var fs = require('fs');
+require('child_process');
+const path = require('path');
     
-const testCasesDirectory = path.resolve(__dirname, "cases");
+const testCasesDirectory = path.resolve(__dirname, 'cases');
 
 var TestRunner = function() {
   this.testDirectories = [testCasesDirectory];
@@ -44,14 +44,14 @@ tr.loadTests = function() {
 
     for(let inner = 0; inner < cases.length; inner++) {
       if ( testName && cases[inner] !== `${testName}.js` ) continue;
-      this.fileList = this.fileList.concat(this.testDirectories[index] + "/" + cases[inner]);
+      this.fileList = this.fileList.concat(this.testDirectories[index] + '/' + cases[inner]);
     }
   }
 };
 
 tr.run = function() {
   if (this.fileList.length === 0) {
-    console.error(`Test ${process.argv[TEST_NAME]} not found`);
+    process.stderr.write(`Test ${process.argv[TEST_NAME]} not found \n`);
     process.exit(1);
   }
 

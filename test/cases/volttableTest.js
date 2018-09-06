@@ -21,28 +21,28 @@
 * OTHER DEALINGS IN THE SOFTWARE.
 */
 
-const VoltClient = require("../../lib/client");
-const VoltProcedure = require("../../lib/query");
-const debug = require("debug")("voltdb-client-nodejs:TypeTest");
-const VoltTable = require("../../lib/volttable");
+const VoltClient = require('../../lib/client');
+const VoltProcedure = require('../../lib/query');
+const debug = require('debug')('voltdb-client-nodejs:TypeTest');
+const VoltTable = require('../../lib/volttable');
 
-const testContext = require("../util/test-context");
+const testContext = require('../util/test-context');
 testContext.setup();
 
-require("nodeunit");
-const config = require("../config");
+require('nodeunit');
+const config = require('../config');
 
 //Setup context
 
 const client = new VoltClient(config);
 
-const TIMESTAMP_VALUE = new Date("2002/07/25");
+const TIMESTAMP_VALUE = new Date('2002/07/25');
 
-const className = "com.voltdb.test.volttable.proc.VoltTableTest";
-const jarPath = __dirname + "/../../tools/testdb/typetest.jar";
+const className = 'com.voltdb.test.volttable.proc.VoltTableTest';
+const jarPath = __dirname + '/../../tools/testdb/typetest.jar';
 const createProc = `create procedure from class ${className};`;
 const dropProc = `drop procedure ${className} if exists;`;
-const dropTable = "drop table typetest if exists;";
+const dropTable = 'drop table typetest if exists;';
 const createTable =`CREATE TABLE typetest(
   test_id         integer         NOT NULL,
   test_tiny       tinyint         NOT NULL,
@@ -56,24 +56,24 @@ const createTable =`CREATE TABLE typetest(
   test_timestamp  timestamp       NOT NULL,
   PRIMARY KEY (test_id)
 );`;
-const partitionTable = "PARTITION TABLE typetest ON COLUMN test_id;";
-const selectData = "select * from typetest;";
+const partitionTable = 'PARTITION TABLE typetest ON COLUMN test_id;';
+const selectData = 'select * from typetest;';
 
 function getTypeTestVoltTable(){
   const vt = new VoltTable();
   
-  vt.addColumn("test_id","integer");          //2
-  vt.addColumn("test_tiny","tinyint");        //3
-  vt.addColumn("test_small","smallint");      //4
-  vt.addColumn("test_integer","integer");     //5
-  vt.addColumn("test_big","bigint");          //6
-  vt.addColumn("test_float","float");         //7.7
-  vt.addColumn("test_decimal","decimal");     //8.000008
-  vt.addColumn("test_varchar","string");      //"nine"
-  vt.addColumn("test_varbinary","varbinary"); //"0A" = [10]
-  vt.addColumn("test_timestamp","timestamp"); //1902/07/25
+  vt.addColumn('test_id','integer');          //2
+  vt.addColumn('test_tiny','tinyint');        //3
+  vt.addColumn('test_small','smallint');      //4
+  vt.addColumn('test_integer','integer');     //5
+  vt.addColumn('test_big','bigint');          //6
+  vt.addColumn('test_float','float');         //7.7
+  vt.addColumn('test_decimal','decimal');     //8.000008
+  vt.addColumn('test_varchar','string');      //"nine"
+  vt.addColumn('test_varbinary','varbinary'); //"0A" = [10]
+  vt.addColumn('test_timestamp','timestamp'); //1902/07/25
 
-  vt.addRow(2,3,4,5,6,7.7,8.000008, "nine", new Buffer([10]), TIMESTAMP_VALUE);
+  vt.addRow(2,3,4,5,6,7.7,8.000008, 'nine', new Buffer([10]), TIMESTAMP_VALUE);
   
   return vt;
 }
@@ -93,14 +93,14 @@ function syncExec(procedure, signature, args){
 }
 
 function syncQuery(queryString){
-  console.log("Query | query: ", queryString);
+  debug('Query | query: ', queryString);
 
   return () => client.adHoc(queryString).read.then( function read(response){
     if ( response.code ) {
       throw new Error(response.results.statusString);
     }
 
-    console.log(response.results.statusString);
+    debug(response.results.statusString);
 
     return response;
   });
@@ -109,21 +109,21 @@ function syncQuery(queryString){
 exports.volttableTest = {
   setUp : function(callback) {
     client.connect().then(function startup() {
-      if ( !client.isConnected() ) throw Error("Client not connected");
+      if ( !client.isConnected() ) throw Error('Client not connected');
 
       callback();
     });
   },
   tearDown : function(callback) {
     if ( client ) {
-      debug("typetest teardown called");
+      debug('typetest teardown called');
       client.exit();
       callback();
     }
   },
-  "Init" : function(test){
+  'Init' : function(test){
     test.expect(1);
-    console.log(`UpdateClasses('${jarPath}', null)`);
+    debug(`UpdateClasses('${jarPath}', null)`);
     return client.updateClasses(jarPath).read
       .then( syncQuery(dropProc) )
       .then( syncQuery(dropTable) )
@@ -134,16 +134,16 @@ exports.volttableTest = {
         test.ok(true);
         test.done();
       })
-      .catch(console.error);
+      .catch(debug);
   },
-  "VoltTable" : function(test) {
+  'VoltTable' : function(test) {
     const volttable = getTypeTestVoltTable();
-    syncExec("VoltTableTest",["volttable"],[volttable])()
+    syncExec('VoltTableTest',['volttable'],[volttable])()
       .then(({ code, results })=> {
-        console.log(results.statusString);
+        debug(results.statusString);
 
-        test.equals(code, null, "Should not be an error code");
-        test.equals(results.status, 1, "Status code should be SUCCESS");
+        test.equals(code, null, 'Should not be an error code');
+        test.equals(results.status, 1, 'Status code should be SUCCESS');
 
         return null;
       })
@@ -151,15 +151,15 @@ exports.volttableTest = {
       .then( response => {
         const loadedVolttable = response.results.table[0];
 
-        console.log("Inserted", volttable.data );
-        console.log("Selected", loadedVolttable.data );
+        debug('Inserted', volttable.data );
+        debug('Selected', loadedVolttable.data );
 
-        test.ok(volttable.equals(loadedVolttable), "Inserted VoltTable should be the same that the one selected");
+        test.ok(volttable.equals(loadedVolttable), 'Inserted VoltTable should be the same that the one selected');
         test.done();
       })
 
     /*  */
-      .catch(console.error);
+      .catch(debug);
     
   }
 };

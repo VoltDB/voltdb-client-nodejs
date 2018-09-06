@@ -29,28 +29,29 @@
  * 2. Creates a connection
  * 3. Invokes stored procedures and processes the results.
  */
+const debug = require('debug')('voltdb-client-nodejs:voter');
 
-var util = require("util");
-require("cluster");
+var util = require('util');
+require('cluster');
 
 // VoltClient manages all communication with VoltDB
-var VoltClient = require(__dirname + "/../../../../lib/client");
+var VoltClient = require(__dirname + '/../../../../lib/client');
 
 // VoltConstants has all the event types, codes and other constants
 // that the client and your code will rely upon
-var VoltConstants = require(__dirname + "/../../../../lib/voltconstants");
+var VoltConstants = require(__dirname + '/../../../../lib/voltconstants');
 
 // VoltConfiguration sets up the configuration for each VoltDB server
 // in your cluster. If you have ten Volt nodes in the cluster, then you should 
 // create ten configurations. These configurations are used in the construction
 // of the client.
-var VoltConfiguration = require(__dirname + "/../../../../lib/configuration");
+var VoltConfiguration = require(__dirname + '/../../../../lib/configuration');
 
 // VoltProcedure is a static representation of the stored procedure and 
 // specifies the procedure's name and the parameter types. The parameter types
 // are especially important since they define how the client will marshal the 
 // the parameters.
-var VoltProcedure = require(__dirname + "/../../../../lib/query");
+var VoltProcedure = require(__dirname + '/../../../../lib/query');
 
 // VoltQuery is a specific instance of a VoltProcedure. Your code will
 // always call stored procedures using a VoltQuery object.
@@ -58,9 +59,9 @@ var VoltProcedure = require(__dirname + "/../../../../lib/query");
 
 // These are a set of stored procedure definitions.
 // See VoltConstants to see the data types supported by the driver.
-var resultsProc = new VoltProcedure("Results");
-var initProc = new VoltProcedure("Initialize", ["int", "string"]);
-var voteProc = new VoltProcedure("Vote", ["long", "int", "long"]);
+var resultsProc = new VoltProcedure('Results');
+var initProc = new VoltProcedure('Initialize', ['int', 'string']);
+var voteProc = new VoltProcedure('Vote', ['long', 'int', 'long']);
 
 // The following is just application specific data
 var client = null;
@@ -89,9 +90,9 @@ var area_codes = [907, 205, 256, 334, 251, 870, 501, 479, 480, 602, 623, 928,
   804, 757, 703, 571, 276, 236, 540, 802, 509, 360, 564, 206, 425, 253, 715, 920, 
   262, 414, 608, 304, 307];
 
-var voteCandidates = "Edwina Burnam,Tabatha Gehling,Kelly Clauss," + 
-"Jessie Alloway,Alana Bregman,Jessie Eichman,Allie Rogalski,Nita Coster," + 
-"Kurt Walser,Ericka Dieter,Loraine NygrenTania Mattioli";
+var voteCandidates = 'Edwina Burnam,Tabatha Gehling,Kelly Clauss,' + 
+'Jessie Alloway,Alana Bregman,Jessie Eichman,Allie Rogalski,Nita Coster,' + 
+'Kurt Walser,Ericka Dieter,Loraine NygrenTania Mattioli';
 
 function getCandidate() {
   return Math.floor(Math.random() * 6) + 1;
@@ -105,7 +106,7 @@ function getAreaCode() {
 
 // This will initialize the Voter database by invoking a stored procedure.
 function voltInit() {
-  util.log("voltInit");
+  util.log('voltInit');
   // Start by creating a query instance from the VoltProcedure
   var query = initProc.getQuery();
   
@@ -122,11 +123,11 @@ function voltInit() {
   // The result object depends on the operation. Queries will always return a
   // VoltTable array
   client.callProcedure(query).read.then( function initVoter({ results }) {
-    if ( results.status !== VoltConstants.RESULT_STATUS.SUCCESS ) return console.error( results.status.string );
+    if ( results.status !== VoltConstants.RESULT_STATUS.SUCCESS ) return debug( results.status.string );
 
     const val = results.table[0].data[0];
-    util.log("Initialized app for " + val[""] + " candidates.");
-  }).catch( console.error );
+    util.log('Initialized app for ' + val[''] + ' candidates.');
+  }).catch( debug );
 }
 
 
@@ -135,7 +136,7 @@ function voltInit() {
 // for trapping all the various error conditions, like connections being 
 // dropped.
 function eventListener(code, event, message) {
-  util.log(util.format( "Event %s\tcode: %d\tMessage: %s", event, code, 
+  util.log(util.format( 'Event %s\tcode: %d\tMessage: %s', event, code, 
     message));
 }
 
@@ -161,7 +162,7 @@ exports.initClient = function(startLoop) {
   if(client == null) {
     var configs = [];
 
-    configs.push(getConfiguration("produccion","operator","mech"));
+    configs.push(getConfiguration('localhost','operator','mech'));
     // The client is only configured at this point. The connection
     // is not made until the call to client.connect().
     client = new VoltClient(configs);
@@ -184,7 +185,7 @@ exports.initClient = function(startLoop) {
     // The second handler is more for catastrophic failures.
     client.connect().then(function startup({ connected, errors }) {
       if( connected ) {
-        util.log("Node connected to VoltDB");
+        util.log('Node connected to VoltDB');
         if(startLoop) {
           setInterval(logResults, statsLoggingInterval);
           voteInsertLoop();
@@ -192,7 +193,7 @@ exports.initClient = function(startLoop) {
           voltInit();
         }
       } else {
-        util.log("Unexpected status while initClient:", errors.map( e => VoltConstants.LOGIN_ERRORS[e])  );
+        util.log('Unexpected status while initClient:', errors.map( e => VoltConstants.LOGIN_ERRORS[e])  );
         process.exit(1);
       }
     });
@@ -223,7 +224,7 @@ function voteInsertLoop() {
       let call = client.callProcedure(query);
       call.read.then(function displayResults() {
         transactionCounter++;
-      }).catch( console.error );
+      }).catch( debug );
     }
     setImmediate(innerLoop);
   };
@@ -234,12 +235,12 @@ function voteInsertLoop() {
 // This just displays how many votes we issued every 10 seconds, per node 
 // instance
 function logResults() {
-  logTime("Voted", statsLoggingInterval, transactionCounter);
+  logTime('Voted', statsLoggingInterval, transactionCounter);
   transactionCounter = 0;
 }
 
 function logTime(operation, totalTime, count) {
-  util.log(util.format("%d: %s %d times in %d milliseconds. %d TPS", 
+  util.log(util.format('%d: %s %d times in %d milliseconds. %d TPS', 
     process.pid, operation, count, totalTime, 
     Math.floor((count / totalTime) * 1000)));
 }

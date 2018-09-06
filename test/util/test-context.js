@@ -6,12 +6,12 @@
  */
 !(function(global) { // eslint-disable-line no-unused-vars
 
-  "use strict";
+  'use strict';
   
-  const yargs = require("yargs");
-  const dockerUtil = require("../util/docker-util");
+  const yargs = require('yargs');
+  const dockerUtil = require('../util/docker-util');
   
-  const VOLT_CONTAINER_NAME = "node1";
+  const VOLT_CONTAINER_NAME = 'node1';
   
   // TODO: Should eventually go in VoltConstants. 
   const VOLT_CLIENT_PORT = 21212;
@@ -27,11 +27,11 @@
   function _setup(){
 
     var argv = yargs
-      .usage("$0 -i instance [testname]")
-      .alias("i", "instance")
-      .demandOption(["i"])
-      .describe("i", "Specify the type of VoltDB instance the tests will be run against. " +
-          "Can be a local instance [local] or a local instance running in a Docker container [docker]")
+      .usage('$0 -i instance [testname]')
+      .alias('i', 'instance')
+      .demandOption(['i'])
+      .describe('i', 'Specify the type of VoltDB instance the tests will be run against. ' +
+          'Can be a local instance [local] or a local instance running in a Docker container [docker]')
       .argv;
     
     config.instance = argv.instance;
@@ -46,10 +46,10 @@
   
     var voltPort = -1;
     
-    if(config.instance === "local"){
+    if(config.instance === 'local'){
       voltPort = VOLT_CLIENT_PORT;
     }
-    else if(config.instance === "docker"){
+    else if(config.instance === 'docker'){
       voltPort = dockerUtil.getExposedVoltPort(VOLT_CONTAINER_NAME);
     }
     else{

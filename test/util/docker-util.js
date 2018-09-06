@@ -1,10 +1,10 @@
 !(function(global) { // eslint-disable-line no-unused-vars
 
-  "use strict";
+  'use strict';
 
-  const childProcess = require("child_process");
-  const debug = require("debug")("voltdb-client-nodejs:DockerUtil");
-  const os = require("os");
+  const childProcess = require('child_process');
+  const debug = require('debug')('voltdb-client-nodejs:DockerUtil');
+  const os = require('os');
   
   /*
    * TODO: Should eventually go in VoltConstants. 
@@ -27,26 +27,26 @@
     /*
      * "docker port node1 21212" will return something like this "0.0.0.0:33164". Just parse out the port at the end.
      */
-    const command = "docker";
-    const args = ["port", containerName, VOLT_CLIENT_PORT];
+    const command = 'docker';
+    const args = ['port', containerName, VOLT_CLIENT_PORT];
     const dockerPortResponse = childProcess.spawnSync(command, args);
     if(dockerPortResponse.status !== 0){
       // Failure, log a warning and just fall through, returning the default port
-      console.warn(`Docker port query failure | Will return default port '${VOLT_CLIENT_PORT}'. \
+      debug(`Docker port query failure | Will return default port '${VOLT_CLIENT_PORT}'. \
 Docker port query for container '${containerName}' and port '${VOLT_CLIENT_PORT}' failed, error was:${os.EOL}
 ${dockerPortResponse.stderr.toString()}`);
     }
     else{
       // Success
       const dockerPortResponseString = dockerPortResponse.stdout.toString();
-      const dockerPortResponseArray = dockerPortResponseString.replace("\n", "").replace("\r", "").split(":");
+      const dockerPortResponseArray = dockerPortResponseString.replace('\n', '').replace('\r', '').split(':');
       if(dockerPortResponseArray.length === 2){
-        debug("Container Found | Name: %o, Client Port: %o, Exposed Client Port: %o ", containerName, VOLT_CLIENT_PORT, clientPort);
+        debug('Container Found | Name: %o, Client Port: %o, Exposed Client Port: %o ', containerName, VOLT_CLIENT_PORT, clientPort);
         clientPort = parseInt(dockerPortResponseArray[1]);
       }
       else{
         // Failure, log a warning and just fall through, returning the default port
-        console.warn(`Docker port query failure | Will return default port '${VOLT_CLIENT_PORT}'.
+        debug(`Docker port query failure | Will return default port '${VOLT_CLIENT_PORT}'.
 Docker port query for container '${containerName}' and port '${VOLT_CLIENT_PORT}' returned unrecognised response, response was:${os.EOL}
 ${dockerPortResponseString}`);
       }

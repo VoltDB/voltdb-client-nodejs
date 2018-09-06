@@ -21,29 +21,26 @@
 * OTHER DEALINGS IN THE SOFTWARE.
 */
 
-const VoltClient = require("../../lib/client");
-const debug = require("debug")("voltdb-client-nodejs:TypeTest");
+const VoltClient = require('../../lib/client');
+const debug = require('debug')('voltdb-client-nodejs:Update Classes Test');
 
-const testContext = require("../util/test-context");
+const testContext = require('../util/test-context');
 testContext.setup();
 
-require("nodeunit");
-const config = require("../config");
-
-//Setup context
-
+require('nodeunit');
+const config = require('../config');
 
 const client = new VoltClient(config);
 
-const procName = "VoltTableTest";
-const className = "com.voltdb.test.volttable.proc.VoltTableTest";
-const jarPath = __dirname + "/../../tools/testdb/typetest.jar";
+const procName = 'VoltTableTest';
+const className = 'com.voltdb.test.volttable.proc.VoltTableTest';
+const jarPath = __dirname + '/../../tools/testdb/typetest.jar';
 
 const dropProc = `drop procedure ${procName} if exists;`;
 const createProc = `create procedure from class ${className};`;
 
 function syncQuery(queryString){
-  console.log("Query | query: ", queryString);
+  debug('Query | query: ', queryString);
 
   return () => client.adHoc(queryString).read.then( function read(response){
     if ( response.code ) {
@@ -57,49 +54,49 @@ function syncQuery(queryString){
 exports.updateClasses = {
   setUp : function(callback) {
     client.connect().then(function startup() {
-      if ( !client.isConnected() ) throw Error("Client not connected");
+      if ( !client.isConnected() ) throw Error('Client not connected');
 
       callback();
     });
   },
   tearDown : function(callback) {
     if ( client ) {
-      debug("typetest teardown called");
+      debug('typetest teardown called');
       client.exit();
       callback();
     }
   },
-  "UpdateClasses remove" : function(test) {
+  'UpdateClasses remove' : function(test) {
     test.expect(2);
 
-    console.log("UpdateClasses(null,'" + className + "')");
+    debug('UpdateClasses(null,\'' + className + '\')');
     return syncQuery(dropProc)()
       .then( () => client.updateClasses(null, className).read )
       .then( response => {
-        test.equals(response.results.status,1, "Command should succeed");
+        test.equals(response.results.status,1, 'Command should succeed');
 
         return syncQuery(createProc)();
       })
       .then( response => {
-        test.equals(response.results.status, -2, "Command should not succeed");
+        test.equals(response.results.status, -2, 'Command should not succeed');
         test.done();
-      }).catch(console.error);
+      }).catch(debug);
       
   },
 
-  "UpdateClasses load" : function(test) {
+  'UpdateClasses load' : function(test) {
     test.expect(2);
     
-    console.log(`UpdateClasses('${jarPath}', null)`);
+    debug(`UpdateClasses('${jarPath}', null)`);
     return client.updateClasses(jarPath).read.then( response => {
-      console.log(response.code, response.results.statusString);
-      test.equals(response.results.status, 1, "Command should succeed");
+      debug(response.code, response.results.statusString);
+      test.equals(response.results.status, 1, 'Command should succeed');
 
       return syncQuery(createProc)();
     }).then( response => {
-      console.log(response.code, response.results.statusString);
-      test.equals(response.results.status, 1, "Command should succeed");
+      debug(response.code, response.results.statusString);
+      test.equals(response.results.status, 1, 'Command should succeed');
       test.done();
-    }).catch(console.error);
+    }).catch(debug);
   }
 };

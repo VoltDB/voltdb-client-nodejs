@@ -21,18 +21,18 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var volt = require("../models/volt"),
-  VoltConstants = require(__dirname + "/../../../../lib/voltconstants");
+var volt = require('../models/volt'),
+  VoltConstants = require(__dirname + '/../../../../lib/voltconstants');
 
 exports.votes = function(req, res) {
   return volt.getVoteResults().then(function displayResults({code, results}) {
     if(code === VoltConstants.STATUS_CODES.SUCCESS && results.status === VoltConstants.RESULT_STATUS.SUCCESS) {
       res.json({
-        "rows" : results.table[0].data.map( row => Object.assign(row, { TOTAL_VOTES : row.TOTAL_VOTES.toString()}) )
+        'rows' : results.table[0].data.map( row => Object.assign(row, { TOTAL_VOTES : row.TOTAL_VOTES.toString()}) )
       });
     } else {
       res.json({
-        "critical fault, database down": 500
+        'critical fault, database down': 500
       });
     }
   });

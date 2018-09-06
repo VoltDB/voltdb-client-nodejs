@@ -25,22 +25,22 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-var cli = require("cli");
-require ("cluster");
-var VoltClient = require("./lib/client");
-var VoltConfiguration = require("./lib/configuration");
-var VoltProcedure = require("./lib/query");
+var cli = require('cli');
+require ('cluster');
+var VoltClient = require('./lib/client');
+var VoltConfiguration = require('./lib/configuration');
+var VoltProcedure = require('./lib/query');
 
-var util = require("util");
+var util = require('util');
 
 var client = null;
-var resultsProc = new VoltProcedure("Results");
-var initProc = new VoltProcedure("Initialize", ["int", "string"]);
-var voteProc = new VoltProcedure("Vote", ["long", "int", "long"]);
+var resultsProc = new VoltProcedure('Results');
+var initProc = new VoltProcedure('Initialize', ['int', 'string']);
+var voteProc = new VoltProcedure('Vote', ['long', 'int', 'long']);
 
 var options = cli.parse({
-  voteCount : ["c", "Number of votes to run", "number", 10000],
-  clusterNode0 : ["h", "VoltDB host (one of the cluster)", "string", "localhost"]
+  voteCount : ['c', 'Number of votes to run', 'number', 10000],
+  clusterNode0 : ['h', 'VoltDB host (one of the cluster)', 'string', 'localhost']
 });
 
 var area_codes = [907, 205, 256, 334, 251, 870, 501, 479, 480, 602, 623, 928, 
@@ -64,9 +64,9 @@ var area_codes = [907, 205, 256, 334, 251, 870, 501, 479, 480, 602, 623, 928,
   936, 409, 972, 469, 214, 682, 832, 281, 830, 956, 432, 915, 435, 801, 385, 
   434, 804, 757, 703, 571, 276, 236, 540, 802, 509, 360, 564, 206, 425, 253, 
   715, 920, 262, 414, 608, 304, 307];
-var voteCandidates = "Edwina Burnam,Tabatha Gehling,Kelly Clauss," +
-"Jessie Alloway,Alana Bregman,Jessie Eichman,Allie Rogalski,Nita Coster," + 
-"Kurt Walser,Ericka Dieter,Loraine NygrenTania Mattioli";
+var voteCandidates = 'Edwina Burnam,Tabatha Gehling,Kelly Clauss,' +
+'Jessie Alloway,Alana Bregman,Jessie Eichman,Allie Rogalski,Nita Coster,' + 
+'Kurt Walser,Ericka Dieter,Loraine NygrenTania Mattioli';
 
 
 function main() {
@@ -74,7 +74,7 @@ function main() {
   var clusterNodes = [options.clusterNode0];
   var configs = [];
   for ( var index = 0; index < clusterNodes.length; index++ ) {
-    console.log("Host: " + clusterNodes[index]);
+    console.log('Host: ' + clusterNodes[index]);
     var vc = new VoltConfiguration();
     vc.host = clusterNodes[index];
     configs.push(vc);
@@ -82,21 +82,21 @@ function main() {
     
   client = new VoltClient(configs);    
   client.connect(function startup(results) {
-    console.log("Node up");
+    console.log('Node up');
     voltInit();
   }, function loginError(results) {
-    console.log("Error logging in: " + results);
+    console.log('Error logging in: ' + results);
   });
 }
 
 function voltInit() {
-  console.log("voltInit");
+  console.log('voltInit');
   var query = initProc.getQuery();
   query.setParameters([6, voteCandidates]);
   client.callProcedure(query, function initVoter(event, code, results) {
     if ( results.error == false ) {
       var val = results.table[0][0];
-      console.log( "Initialized app for " + val[""] + " candidates.\n\n");
+      console.log( 'Initialized app for ' + val[''] + ' candidates.\n\n');
             
       var voteJob = {};
       voteJob.voteCount = options.voteCount;
@@ -108,30 +108,30 @@ function voltInit() {
 }
 
 function voteOften(voteJob) {
-  console.log("voteOften");
+  console.log('voteOften');
   voteInsertLoop(voteJob);
 }
 
 function voteResultsOften(voteJob) {
-  console.log("voteResultsOften");
+  console.log('voteResultsOften');
   voteResultsLoop(voteJob);
 }
 
 function voteResults(voteJob) {
-  console.log("voteResults");
+  console.log('voteResults');
   var query = resultsProc.getQuery();
   client.callProcedure(query, function displayResults(event, code, results) {
     var mytotalVotes = 0;
 
-    var msg = "";
+    var msg = '';
     var longestString = 0;
     var rows = results.table[0];
     for(var i = 0; i < rows.length; i++) {
       mytotalVotes += rows[i].TOTAL_VOTES;
-      msg += util.format("%s\t%s\t%d\n", rows[i].CONTESTANT_NAME, 
+      msg += util.format('%s\t%s\t%d\n', rows[i].CONTESTANT_NAME, 
         rows[i].CONTESTANT_NUMBER, rows[i].TOTAL_VOTES);
     }
-    msg += util.format("%d votes\n\n", mytotalVotes);
+    msg += util.format('%d votes\n\n', mytotalVotes);
     console.log(msg);
     runNextLink(voteJob);
   });
@@ -143,7 +143,7 @@ function connectionStats() {
 
 function voteEnd(voteJob) {
   client.connectionStats();
-  console.log("voteEnd");
+  console.log('voteEnd');
   process.exit();
 }
 
@@ -189,7 +189,7 @@ function voteResultsLoop(voteJob) {
                 
         //console.log('reads left: ', reads);
         if(reads == 0) {
-          logVoteResultsTime(startTime, voteJob.voteCount, "Results");
+          logVoteResultsTime(startTime, voteJob.voteCount, 'Results');
           runNextLink(voteJob);
         } else {
           // console.log("reads ", reads);
@@ -199,8 +199,8 @@ function voteResultsLoop(voteJob) {
         //console.log('writes left: ', voteJob.voteCount-index);
         if(index < voteJob.voteCount) {
           if ( index % 5000 == 0 ) {
-            console.log("Executed ", index, " queries in ", 
-              (new Date().getTime()) - chunkTime, "ms ", 
+            console.log('Executed ', index, ' queries in ', 
+              (new Date().getTime()) - chunkTime, 'ms ', 
               util.inspect(process.memoryUsage()));
             chunkTime = new Date().getTime();
           }
@@ -209,12 +209,12 @@ function voteResultsLoop(voteJob) {
             process.nextTick(innerResultsLoop);
           }
         } else {
-          console.log("Time to stop querying: ", index);
+          console.log('Time to stop querying: ', index);
         }
         //console.log('write done');
       });
     } else {
-      console.log(readyToWriteCounter++, "Index is: ", index, " and ", 
+      console.log(readyToWriteCounter++, 'Index is: ', index, ' and ', 
         voteJob.voteCount);
     }
   };
@@ -239,7 +239,7 @@ function voteInsertLoop(voteJob) {
         //console.log("reads ", reads);
         reads--;
         if(reads == 0) {
-          logVoteInsertTime(startTime, voteJob.voteCount, "Results");
+          logVoteInsertTime(startTime, voteJob.voteCount, 'Results');
           runNextLink(voteJob);
         } else {
           //console.log("reads ", reads);
@@ -247,8 +247,8 @@ function voteInsertLoop(voteJob) {
       }, function readyToWrite() {
         if( index < voteJob.voteCount ) {
           if ( index % 5000 == 0 ) {
-            console.log("Executed ", index, " votes in ", 
-              (new Date().getTime()) - chunkTime, "ms "/*, 
+            console.log('Executed ', index, ' votes in ', 
+              (new Date().getTime()) - chunkTime, 'ms '/*, 
                         util.inspect(process.memoryUsage())*/);
             chunkTime = new Date().getTime();
           }
@@ -263,11 +263,11 @@ function voteInsertLoop(voteJob) {
 }
 
 function logVoteInsertTime(startTime, votes, typeString) {
-  logTime("Voted", startTime, votes, typeString);
+  logTime('Voted', startTime, votes, typeString);
 }
 
 function logVoteResultsTime(startTime, votes, typeString) {
-  logTime("Queried for results", startTime, votes, typeString);
+  logTime('Queried for results', startTime, votes, typeString);
 }
 
 function logTime(operation, startTime, votes, typeString) {
@@ -276,9 +276,9 @@ function logTime(operation, startTime, votes, typeString) {
   endTimeMS = (endTimeMS > 0 ? endTimeMS : 1 );
   endTimeSeconds = (endTimeSeconds > 0 ? endTimeSeconds : 1 );
 
-  console.log(util.format("%s %d times in %d milliseconds.\n"
-    + "%s %d times in %d seconds.\n%d milliseconds per transaction\n"
-    + "%d transactions per millisecond\n%d transactions per second\n\n",
+  console.log(util.format('%s %d times in %d milliseconds.\n'
+    + '%s %d times in %d seconds.\n%d milliseconds per transaction\n'
+    + '%d transactions per millisecond\n%d transactions per second\n\n',
   operation,
   votes, endTimeMS, 
   operation, votes, 
@@ -287,7 +287,7 @@ function logTime(operation, startTime, votes, typeString) {
 }
 
 function isValidObject(object) {
-  return typeof object != "undefined" && object != null;
+  return typeof object != 'undefined' && object != null;
 }
 
 function runNextLink(voteJob) {

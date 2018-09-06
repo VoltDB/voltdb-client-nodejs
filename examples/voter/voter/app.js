@@ -33,10 +33,10 @@
  * client code.
  */
 
-var express = require("express"), 
-  routes = require("./routes"), volt = require("./models/volt"), 
-  votes = require("./jsons/votes"), util = require("util"), 
-  cluster = require("cluster"), numCPUs = require("os").cpus().length;
+var express = require('express'), 
+  routes = require('./routes'), volt = require('./models/volt'), 
+  votes = require('./jsons/votes'), util = require('util'), 
+  cluster = require('cluster'), numCPUs = require('os').cpus().length;
 
 function webserverProcess() {
   var app = module.exports = express.createServer();
@@ -44,31 +44,31 @@ function webserverProcess() {
   // Configuration
 
   app.configure(function() {
-    app.set("views", __dirname + "/views");
-    app.set("view engine", "jade");
+    app.set('views', __dirname + '/views');
+    app.set('view engine', 'jade');
     app.use(express.bodyParser());
     app.use(express.methodOverride());
     app.use(app.router);
-    app.use(express.static(__dirname + "/public"));
+    app.use(express.static(__dirname + '/public'));
   });
 
-  app.configure("production", function() {
+  app.configure('production', function() {
     app.use(express.errorHandler({
       dumpExceptions : true,
       showStack : true
     }));
   });
 
-  app.configure("production", function() {
+  app.configure('production', function() {
     app.use(express.errorHandler());
   });
   // Routes
-  app.get("/", routes.index);
-  app.get("/results", votes.votes);
+  app.get('/', routes.index);
+  app.get('/results', votes.votes);
 
   app.listen(3000);
 
-  util.log(util.format("Express server listening on port %d in %s mode", 
+  util.log(util.format('Express server listening on port %d in %s mode', 
     app.address().port, app.settings.env));
 }
 
@@ -77,7 +77,7 @@ function startup() {
     numCPUs /=2;
     // TODO: Add command line to override whatever numCPUs is set to so we don't
     // use all the cores.
-    util.log("Using CPUs: " + numCPUs);
+    util.log('Using CPUs: ' + numCPUs);
     for(var i = 0; i < (numCPUs); i++) {
       cluster.fork();
     }
