@@ -23,38 +23,47 @@
 
 var nodeunit = require('nodeunit');
 var fs = require('fs');
-var child_process = require('child_process');
+require('child_process');
 const path = require('path');
     
-const testCasesDirectory = path.resolve(__dirname, "cases");
+const testCasesDirectory = path.resolve(__dirname, 'cases');
 
 var TestRunner = function() {
   this.testDirectories = [testCasesDirectory];
   this.fileList = [];
-}
-tr = TestRunner.prototype;
+};
 
+const tr = TestRunner.prototype;
+
+const TEST_NAME = 4;
 tr.loadTests = function() {
-  console.log(this.testDirectories.length);
+  const testName = process.argv[TEST_NAME];
+  
   for(var index = 0; index < this.testDirectories.length; index++) {
-    var cases = fs.readdirSync(this.testDirectories[index]) || [];
+    let cases = fs.readdirSync(this.testDirectories[index]) || [];
 
-    for(var inner = 0; inner < cases.length; inner++) {
+    for(let inner = 0; inner < cases.length; inner++) {
+      if ( testName && cases[inner] !== `${testName}.js` ) continue;
       this.fileList = this.fileList.concat(this.testDirectories[index] + '/' + cases[inner]);
     }
   }
-}
+};
 
 tr.run = function() {
-  var reporter = nodeunit.reporters.default;
+  if (this.fileList.length === 0) {
+    process.stderr.write(`Test ${process.argv[TEST_NAME]} not found \n`);
+    process.exit(1);
+  }
+
+  const reporter = nodeunit.reporters.default;
   reporter.run(this.fileList, null, function something() {
     process.exit(0);
   });
-}
+};
 function main() {
   var runner = new TestRunner();
   runner.loadTests();
   runner.run();
-};
+}
 
 main();
